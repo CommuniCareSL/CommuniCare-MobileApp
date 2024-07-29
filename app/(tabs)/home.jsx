@@ -80,7 +80,7 @@ const Home = () => {
           {categories.map((category, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => router.push(`/complaint?category=${encodeURIComponent(category.title)}`)}
+              onPress={() => router.push(`/complaintdetails/${encodeURIComponent(category.title)}`)}
               style={styles.categoryButton}
             >
               <View style={styles.categoryContent}>
