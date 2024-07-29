@@ -1,24 +1,38 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 
 const Home = () => {
+  const incidents = {
+    reported: 1452,
+    inProgress: 693,
+    resolved: 759,
+  };
+
   const categories = [
     {
-      icon: require('../../assets/images/forest.png'),
-      title: 'Unsafe Tree in the roadside',
+      icon: require('../../assets/images/road.png'),
+      title: 'Road hazards',
     },
     {
-      icon: require('../../assets/images/animal.png'),
-      title: 'Stray Animal',
+      icon: require('../../assets/images/forest.png'),
+      title: 'Unsafe trees in roadside',
     },
     {
       icon: require('../../assets/images/garbage.png'),
-      title: 'Garbage Disposal on roadside',
+      title: 'Garbage disposal on roadside',
+    },
+    {
+      icon: require('../../assets/images/mosquito.png'),
+      title: 'Mosquito breeding grounds',
     },
     {
       icon: require('../../assets/images/streetlight.png'),
-      title: 'Streetlamp Malfunction',
+      title: 'Street lamp malfunction',
+    },
+    {
+      icon: require('../../assets/images/animal.png'),
+      title: 'Stray animals',
     },
     {
       icon: require('../../assets/images/worker.png'),
@@ -26,135 +40,136 @@ const Home = () => {
     },
     {
       icon: require('../../assets/images/drain.png'),
-      title: 'Damages on drains',
+      title: 'Damages to the street drains',
     },
+    
     {
-      icon: require('../../assets/images/mosquito.png'),
-      title: 'Mosquito breeding grounds',
-    },
-    {
-      icon: require('../../assets/images/road.png'),
-      title: 'Road Hazards',
+      icon: require('../../assets/images/toilet.png'),
+      title: 'Issues related to public toilets',
     },
     {
       icon: require('../../assets/images/seller.png'),
       title: 'Unauthorized street sellers',
     },
-    {
-      icon: require('../../assets/images/drain.png'),
-      title: 'Damages on drains',
-    },
   ];
 
+  const router = useRouter();
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Communi Care</Text>
-        <Image source={require('../../assets/images/logo.jpg')} style={styles.phoneIcon} />
-      </View>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.header}>
+          <Text style={styles.greeting}>Hello Chinthana!</Text>
+          <Text style={styles.subHeader}>Easily Connect with Your Local Government Office</Text>
+          <View style={styles.incidentsContainer}>
+            <View style={styles.incidentBox}>
+              <Text style={styles.incidentNumber}>{incidents.reported}</Text>
+              <Text style={styles.incidentText}>Reported</Text>
+            </View>
+            <View style={styles.incidentBox}>
+              <Text style={styles.incidentNumber}>{incidents.inProgress}</Text>
+              <Text style={styles.incidentText}>In Progress</Text>
+            </View>
+            <View style={styles.incidentBox}>
+              <Text style={styles.incidentNumber}>{incidents.resolved}</Text>
+              <Text style={styles.incidentText}>Resolved</Text>
+            </View>
+          </View>
+        </View>
         <View style={styles.categoriesContainer}>
           {categories.map((category, index) => (
-            <Link
+            <TouchableOpacity
               key={index}
-              href={`/complaint?category=${encodeURIComponent(category.title)}`}
+              onPress={() => router.push(`/complaint?category=${encodeURIComponent(category.title)}`)}
               style={styles.categoryButton}
             >
-              <Image source={category.icon} style={styles.categoryIcon} />
-              <Text style={styles.categoryTitle}>{category.title}</Text>
-            </Link>
+              <View style={styles.categoryContent}>
+                <Image source={category.icon} style={styles.categoryIcon} />
+                <Text style={styles.categoryTitle} numberOfLines={2} ellipsizeMode="tail">
+                  {category.title}
+                </Text>
+              </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
-      {/* Uncomment this section if you need a footer */}
-      {/* <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerButton}>
-          <Image source={require('../../assets/images/react-logo.png')} style={styles.footerIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Image source={require('../../assets/images/react-logo.png')} style={styles.footerIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Image source={require('../../assets/images/react-logo.png')} style={styles.footerIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Image source={require('../../assets/images/react-logo.png')} style={styles.footerIcon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Image source={require('../../assets/images/react-logo.png')} style={styles.footerIcon} />
-        </TouchableOpacity>
-      </View> */}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  phoneIcon: {
-    width: 24,
-    height: 24,
-  },
   scrollContainer: {
     flexGrow: 1,
-    padding: 10,
+    backgroundColor: '#fff',
+  },
+  header: {
+    marginTop:20,
+    padding: 20,
+    backgroundColor: '#007bff',
+    borderRadius: 10,
+    marginHorizontal: 10,
+    marginBottom: 10,
+  },
+  greeting: {
+    fontSize: 24,
+    color: '#fff',
+    marginBottom: 5,
+  },
+  subHeader: {
+    marginTop:20,
+    fontSize: 16,
+    color: '#fff',
+    marginBottom: 20,
+  },
+  incidentsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  incidentBox: {
+    alignItems: 'center',
+  },
+  incidentNumber: {
+    fontSize: 24,
+    color: '#fff',
+  },
+  incidentText: {
+    fontSize: 14,
+    color: '#fff',
   },
   categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginHorizontal: 10,
+    marginBottom: 10,
   },
   categoryButton: {
     width: '48%',
-    height: 140, // Increased height for better spacing
-    padding: 10, // Reduced padding
+    height: 120, 
     borderRadius: 10,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#EEEDEB',
     marginBottom: 10,
     alignItems: 'center',
-    justifyContent: 'center', // Center content vertically
+    justifyContent: 'center',
+    padding: 5,
+  },
+  categoryContent: {
+    width: '100%',
+    alignItems: 'center',
   },
   categoryIcon: {
-    width: 40, // Increased icon size
-    height: 40, // Increased icon size
-    marginBottom: 10,
+    width: 40,
+    height: 40,
+    marginBottom: 5,
   },
   categoryTitle: {
-    fontSize: 14, 
-    fontWeight: 'bold',
+    fontSize: 14,
     color: '#333',
-    textAlign: 'center', 
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-  },
-  footerButton: {
-    padding: 10,
-    borderRadius: 50,
-    backgroundColor: '#fff',
-    elevation: 2,
-  },
-  footerIcon: {
-    width: 24,
-    height: 24,
+    textAlign: 'center',
   },
 });
 
