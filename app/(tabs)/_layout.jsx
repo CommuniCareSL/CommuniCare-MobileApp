@@ -5,7 +5,7 @@ import { Tabs, Redirect } from 'expo-router';
 const TabsLayout = () => {
   return (
     <>
-      <Tabs>
+      <Tabs screenOptions={{headerShown:false}} >
         <Tabs.Screen 
         name="home"
         />
