@@ -20,7 +20,7 @@ const Services = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Image
-          source={require('../../assets/images/worker.png')} // Replace with your actual logo path
+          source={require('../../assets/images/logo.jpg')} // Replace with your actual logo path
           style={styles.logo}
         />
         <Text style={styles.logoText}>COMMUNI CARE</Text>
@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: 60,
-    height: 60,
+    width: 400,
+    height: 400,
     alignSelf: 'center',
     marginBottom: 10,
   },

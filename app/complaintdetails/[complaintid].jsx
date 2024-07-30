@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
 import { useLocalSearchParams } from 'expo-router';
 
 // ComplaintDetails component to display the complaint ID
@@ -14,6 +14,7 @@ const ComplaintDetails = () => {
       <Text style={styles.label}>Complaint Category:</Text>
       <Text>{complaintid}</Text>
     </View>
+    
   );
 };
 
@@ -47,29 +48,12 @@ const ComplaintForm = () => {
     navigation.navigate('ComplaintDetails'); // Navigate to details screen
   };
 
-  const handleLocationPress = async () => {
-    // Request location permissions
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permission to access location was denied');
-      return;
-    }
-
-    // Get the current location
-    let location = await Location.getCurrentPositionAsync({});
-    setRegion({
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
-    });
-
-    // Navigate to the map screen with the current region
-    navigation.navigate('MapScreen', { region });
+  const handleLocationPress = () => {
+    navigation.navigate('MapScreen', { region }); // Pass the current region to the MapScreen
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           
@@ -79,8 +63,9 @@ const ComplaintForm = () => {
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Complaint Information</Text>
         <ComplaintDetails />
-        <Text style={{ fontSize: 16, marginLeft: 10, fontWeight: 'bold', }}>Complaint Proofs</Text>
+        <Text style={styles.sectionTitle} >Complaint Proofs</Text>
         <View style={styles.imageUpload}>
+        
           <TouchableOpacity style={styles.imageButton}>
             <Image source={require('../../assets/images/image.png')} style={styles.imageIcon} />
           </TouchableOpacity>
@@ -157,7 +142,7 @@ const ComplaintForm = () => {
           <Text style={styles.buttonText}>SUBMIT</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -223,7 +208,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     marginTop: 10,
     flex: 1,
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
     alignItems: 'center',
     marginLeft: 10,
@@ -233,9 +218,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   sectionTitle: {
-    fontSize: 20,
-    marginLeft: 10,
-    marginTop: 10,
+    fontSize: 16,
+    marginLeft:10,
+    
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -246,7 +231,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   label: {
-    fontSize: 16,
     fontWeight: 'bold',
     marginRight: 5,
   },
@@ -264,9 +248,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: '#B4B4B8',
     borderWidth: 1,
-    marginTop: 25,
-    marginLeft: 10,
-    marginBottom: 50,
+    marginTop:50,
+    marginBottom:50,
   },
   imageIcon: {
     width: 50,
@@ -325,7 +308,6 @@ const styles = StyleSheet.create({
 });
 
 export default ComplaintForm;
-
 
 
 
