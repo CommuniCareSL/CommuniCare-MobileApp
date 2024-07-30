@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location';
 import { useLocalSearchParams } from 'expo-router';
 
 // ComplaintDetails component to display the complaint ID
@@ -47,8 +47,25 @@ const ComplaintForm = () => {
     navigation.navigate('ComplaintDetails'); // Navigate to details screen
   };
 
-  const handleLocationPress = () => {
-    navigation.navigate('MapScreen', { region }); // Pass the current region to the MapScreen
+  const handleLocationPress = async () => {
+    // Request location permissions
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      alert('Permission to access location was denied');
+      return;
+    }
+
+    // Get the current location
+    let location = await Location.getCurrentPositionAsync({});
+    setRegion({
+      latitude: location.coords.latitude,
+      longitude: location.coords.longitude,
+      latitudeDelta: 0.0922,
+      longitudeDelta: 0.0421,
+    });
+
+    // Navigate to the map screen with the current region
+    navigation.navigate('MapScreen', { region });
   };
 
   return (
@@ -308,6 +325,7 @@ const styles = StyleSheet.create({
 });
 
 export default ComplaintForm;
+
 
 
 
