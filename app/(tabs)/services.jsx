@@ -1,21 +1,24 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // Assuming you're using Expo
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
-const ServiceCard = ({ title, description, icon }) => (
-  <TouchableOpacity style={styles.card}>
+const ServiceCard = ({ title, description, icon, onPress }) => (
+  <TouchableOpacity style={styles.card} onPress={onPress}>
     <View style={styles.cardContent}>
       <View>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
         <Text style={styles.moreInfo}>More info</Text>
       </View>
-      <Ionicons name={icon} size={40} color="#4A90E2" />
+      <Ionicons name={icon} size={40} color="#4A90E2" marginRight={200}/>
     </View>
   </TouchableOpacity>
 );
 
 const Services = () => {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -27,14 +30,16 @@ const Services = () => {
         
         <ServiceCard 
           title="Online Services" 
-          description="Easily access our services online from home."
+          description="Easily access our services online from home by single touch."
           icon="people-circle-outline"
+          onPress={() => router.push('/services/online_servises')}
         />
         
         <ServiceCard 
           title="Appointment Services" 
           description="Book an appointment for services that need an in-person visit."
           icon="calendar-outline"
+          onPress={() => router.push('/services/appointment_services')}
         />
       </View>
     </SafeAreaView>
@@ -51,8 +56,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    width: 400,
-    height: 400,
+    width: 300,
+    height: 300,
     alignSelf: 'center',
     marginBottom: 10,
   },
@@ -80,6 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   cardDescription: {
+    maxWidth: 280,
     fontSize: 14,
     color: '#666',
     marginBottom: 10,
@@ -91,3 +97,6 @@ const styles = StyleSheet.create({
 });
 
 export default Services;
+
+
+
