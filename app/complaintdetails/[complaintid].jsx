@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import RNPickerSelect from 'react-native-picker-select';
-import MapView, { Marker } from 'react-native-maps';
 import { useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import ImageUploadModal from '../../components/complaint/ImageUploadModal';
+import LocationPicker from '../../components/complaint/LocationPicker';
 
 // ComplaintDetails component to display the complaint ID
 const ComplaintDetails = () => {
@@ -14,7 +16,6 @@ const ComplaintDetails = () => {
       <Text style={styles.label}>Complaint Category:</Text>
       <Text>{complaintid}</Text>
     </View>
-    
   );
 };
 
@@ -26,12 +27,10 @@ const ComplaintForm = () => {
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedCouncil, setSelectedCouncil] = useState('');
   const [sharePhoneNumber, setSharePhoneNumber] = useState(false);
-  const [region, setRegion] = useState({
-    latitude: 6.9271,
-    longitude: 79.8612,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [images, setImages] = useState([null, null, null]);
+  const [showMap, setShowMap] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const handleSharePhoneNumberChange = () => {
     setSharePhoneNumber(!sharePhoneNumber);
@@ -44,44 +43,100 @@ const ComplaintForm = () => {
       selectedDistrict,
       selectedCouncil,
       sharePhoneNumber,
+      images,
+      selectedLocation,
     });
-    navigation.navigate('ComplaintDetails'); // Navigate to details screen
+    navigation.navigate('ComplaintDetails');
   };
 
   const handleLocationPress = () => {
-    navigation.navigate('MapScreen', { region }); // Pass the current region to the MapScreen
+    setShowMap(true);
   };
 
+  const handleLocationSelect = (location) => {
+    setSelectedLocation(location);
+    setShowMap(false);
+    setLocationRemarks(`Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)}`);
+  };
+
+  const handleImageUpload = (index) => {
+    setModalVisible(true);
+  };
+
+  const handleCameraSelect = async () => {
+    setModalVisible(false);
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const newImages = [...images];
+      newImages[images.findIndex(img => img === null)] = result.assets[0].uri;
+      setImages(newImages);
+    }
+  };
+
+  const handleGallerySelect = async () => {
+    setModalVisible(false);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const newImages = [...images];
+      newImages[images.findIndex(img => img === null)] = result.assets[0].uri;
+      setImages(newImages);
+    }
+  };
+
+  if (showMap) {
+    return (
+      <LocationPicker
+        onLocationSelect={handleLocationSelect}
+        onClose={() => setShowMap(false)}
+      />
+    );
+  }
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          
+          {/* Add your back button icon here */}
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Complaint</Text>
       </View>
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Complaint Information</Text>
         <ComplaintDetails />
-        <Text style={styles.sectionTitle} >Complaint Proofs</Text>
+        <Text style={styles.sectionTitle}>Complaint Proofs</Text>
         <View style={styles.imageUpload}>
-        
-          <TouchableOpacity style={styles.imageButton}>
-            <Image source={require('../../assets/images/image.png')} style={styles.imageIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.imageButton}>
-            <Image source={require('../../assets/images/image.png')} style={styles.imageIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.imageButton}>
-            <Image source={require('../../assets/images/image.png')} style={styles.imageIcon} />
-          </TouchableOpacity>
+          {images.map((image, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.imageButton}
+              onPress={() => handleImageUpload(index)}
+            >
+              {image ? (
+                <Image source={{ uri: image }} style={styles.uploadedImage} />
+              ) : (
+                <Image source={require('../../assets/images/image.png')} style={styles.imageIcon} />
+              )}
+            </TouchableOpacity>
+          ))}
         </View>
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.inputWithIcon}
             placeholder="Select Address"
+            value={selectedLocation ? `Lat: ${selectedLocation.latitude.toFixed(6)}, Lng: ${selectedLocation.longitude.toFixed(6)}` : ''}
             editable={false}
-            onPress={handleLocationPress} // Open map on press
           />
           <TouchableOpacity onPress={handleLocationPress}>
             <Image source={require('../../assets/images/location.png')} style={styles.locationIcon} />
@@ -90,16 +145,18 @@ const ComplaintForm = () => {
         <TextInput
           style={styles.input}
           placeholder="Location Remarks"
-          value={locationRemarks}
-          onChangeText={setLocationRemarks}
+          // value={locationRemarks}
+          // onChangeText={setLocationRemarks}
         />
         <TextInput
           style={styles.input}
           placeholder="Complaint Description"
           value={complaintDescription}
           onChangeText={setComplaintDescription}
+          multiline={true}
+          numberOfLines={4}
         />
-        <Text style={styles.sectionTitle}>Complaint Receiver</Text>
+        {/* <Text style={styles.sectionTitle}>Complaint Receiver</Text>
         <RNPickerSelect
           onValueChange={(value) => setSelectedDistrict(value)}
           items={[
@@ -119,16 +176,12 @@ const ComplaintForm = () => {
             { label: 'Dehiwala - Mt. Lavinia Municipal Council', value: 'Council 2' },
             { label: 'Sri Jayawardenepura Kotte Municipal Council', value: 'Council 3' },
             { label: 'Kaduwela Municipal Council', value: 'Council 4' },
-            { label: 'Moratuwa Municipal Council', value: 'Council 5 ' },
+            { label: 'Moratuwa Municipal Council', value: 'Council 5' },
             { label: 'Kollonnawa Urban Council', value: 'Council 6' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 7' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 8' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 9' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 10' },
           ]}
           style={pickerSelectStyles}
           placeholder={{ label: 'Select Council', value: null }}
-        />
+        /> */}
         <View style={styles.checkboxContainer}>
           <Switch
             value={sharePhoneNumber}
@@ -142,23 +195,13 @@ const ComplaintForm = () => {
           <Text style={styles.buttonText}>SUBMIT</Text>
         </TouchableOpacity>
       </View>
-    </View>
-  );
-};
-
-// MapScreen component to display a map with a marker
-const MapScreen = ({ route }) => {
-  const { region } = route.params;
-  return (
-    <View style={styles.mapContainer}>
-      <MapView
-        style={styles.map}
-        initialRegion={region}
-        showsUserLocation={true}
-      >
-        <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }} />
-      </MapView>
-    </View>
+      <ImageUploadModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onCameraSelect={handleCameraSelect}
+        onGallerySelect={handleGallerySelect}
+      />
+    </ScrollView>
   );
 };
 
@@ -201,10 +244,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-  backArrow: {
-    width: 24,
-    height: 24,
-  },
   headerTitle: {
     marginTop: 10,
     flex: 1,
@@ -219,8 +258,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    marginLeft:10,
-    
+    marginLeft: 10,
     fontWeight: 'bold',
     marginBottom: 10,
   },
@@ -248,12 +286,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderColor: '#B4B4B8',
     borderWidth: 1,
-    marginTop:50,
-    marginBottom:50,
+    marginTop: 50,
+    marginBottom: 50,
   },
   imageIcon: {
     width: 50,
     height: 50,
+  },
+  uploadedImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -299,17 +342,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  mapContainer: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
 });
 
 export default ComplaintForm;
-
-
-
-
-
