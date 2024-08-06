@@ -51,6 +51,14 @@ const Home = () => {
       icon: require('../../assets/images/seller.png'),
       title: 'Unauthorized street sellers',
     },
+    {
+      icon: require('../../assets/images/wall.png'),
+      title: 'Dangerous Walls or buildings',
+    },
+    {
+      icon: require('../../assets/images/plus.png'),
+      title: 'Others',
+    },
   ];
 
   const router = useRouter();
