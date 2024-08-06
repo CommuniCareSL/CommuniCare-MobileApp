@@ -3,10 +3,21 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollVi
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-const ServiceCard = ({ title, description, onPress }) => (
+const CardImage = ({ type }) => {
+  switch (type) {
+    case 'reservation':
+      return <Image source={require('../../assets/images/service.png')} style={styles.cardIcon} />;
+    case 'rental':
+      return <Image source={require('../../assets/images/rent.png')} style={styles.cardIcon} />;
+    default:
+      return <Image source={require('../../assets/images/service.png')} style={styles.cardIcon} />;
+  }
+};
+
+const ServiceCard = ({ title, description, onPress, type }) => (
   <TouchableOpacity style={styles.card} onPress={onPress}>
     <View style={styles.cardContent}>
-      <Image source={require('../../assets/images/service.png')} style={styles.cardIcon} />
+      <CardImage type={type} />
       <View style={styles.cardTextContent}>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
@@ -16,7 +27,7 @@ const ServiceCard = ({ title, description, onPress }) => (
   </TouchableOpacity>
 );
 
-const CategorySection = ({ title, services }) => (
+const CategorySection = ({ title, services, type }) => (
   <View style={styles.categorySection}>
     <Text style={styles.categoryTitle}>{title}</Text>
     {services.map((service, index) => (
@@ -24,7 +35,8 @@ const CategorySection = ({ title, services }) => (
         key={index}
         title={service.title}
         description={service.description}
-        onPress={() => {}}
+        onPress={service.onPress}
+        type={type}
       />
     ))}
   </View>
@@ -34,16 +46,16 @@ const Services = () => {
   const router = useRouter();
 
   const reservationServices = [
-    { title: "Booking the crematorium (8)", description: "Crematorium Booking" },
-    { title: "Allotment of playgrounds (10)", description: "segregation of playgrounds" },
-    { title: "Meeting hall reservation (19)", description: "Meeting Hall Reservation" },
+    { title: "Booking the crematorium (8)", description: "Crematorium Booking", onPress: () => router.push('/services/crematorium') },
+    { title: "Allotment of playgrounds (10)", description: "Segregation of playgrounds", onPress: () => {/* handle navigation */} },
+    { title: "Meeting hall reservation (19)", description: "Meeting Hall Reservation", onPress: () => {/* handle navigation */} },
   ];
 
   const rentalServices = [
-    { title: "Concrete Mixer Rental (23)", description: "Concrete Mixer Rental" },
-    { title: "Concrete Quality Test Mold Rental (24)", description: "Concrete Quality Testing Mold Rental" },
-    { title: "Flagpole Rental (25)", description: "Flag Pole Rental" },
-    { title: "Rollo Compressore Rental (26)", description: "Rental of Stone Rolls" },
+    { title: "Concrete Mixer Rental (23)", description: "Concrete Mixer Rental", onPress: () => {/* handle navigation */} },
+    { title: "Concrete Quality Test Mold Rental (24)", description: "Concrete Quality Testing Mold Rental", onPress: () => {/* handle navigation */} },
+    { title: "Flagpole Rental (25)", description: "Flag Pole Rental", onPress: () => {/* handle navigation */} },
+    { title: "Rollo Compressore Rental (26)", description: "Rental of Stone Rolls", onPress: () => {/* handle navigation */} },
   ];
 
   return (
@@ -51,8 +63,8 @@ const Services = () => {
       <ScrollView style={styles.content}>
         <Text style={styles.header}>Online Services</Text>
   
-        <CategorySection title="Reservations" services={reservationServices} />
-        <CategorySection title="Rentals" services={rentalServices} />
+        <CategorySection title="Reservations" services={reservationServices} type="reservation" />
+        <CategorySection title="Rentals" services={rentalServices} type="rental" />
       </ScrollView>
     </SafeAreaView>
   );
