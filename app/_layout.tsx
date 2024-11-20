@@ -28,11 +28,11 @@ const RootLayout = () => {
   }
 
   return (
-    <Stack screenOptions={{headerShown : false}}>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      <Stack.Screen name="complaintdetails/[complaintid]" options={{ headerShown: false }} 
+    <Stack screenOptions={{headerShown : true}}>
+      <Stack.Screen name="index" options={{ headerShown: true }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: true }} />
+      <Stack.Screen name="complaintdetails/[complaintid]" options={{ headerShown: true }} 
 />       
     </Stack>
   );
