@@ -1,16 +1,74 @@
-import React from 'react'
+import React, { useState } from "react";
 import { useRouter, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, ScrollView, Dimensions, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import { login } from "../../services/loginApi"; // Path to API file
+// import { setToken } from "../../hooks/storage";
+import { setUserDetails } from "../../hooks/storage";
+import { jwtDecode } from 'jwt-decode';
 
 const LogIn = () => {
   const router = useRouter();
 
-  const handleLogIn = () => {
-    // Here you would typically handle the log-in logic
-    // For now, we'll just navigate to the home screen
-    router.replace('/home');
+  // Form state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogIn = async () => {
+    try {
+      setLoading(true);
+      
+      // Call login API
+      const response = await login({ email, password });
+      const { token } = response;
+      
+      // Decode token separately for console logging
+      const decodedToken = jwtDecode(token);
+      
+      // Store token and user details
+      await setUserDetails(token);
+      
+      // Print token and decoded details to the console
+      // console.log("Stored Token:", token);
+      console.log("Decoded User Details:", decodedToken);
+      
+      Alert.alert("Success", "Logged in successfully");
+      router.replace("/home");
+    } catch (error) {
+      Alert.alert("Login Failed", error.message || "Please try again");
+    } finally {
+      setLoading(false);
+    }
   };
+  
+
+//   const handleLogIn = async () => {
+//     try {
+//         setLoading(true);
+//         const response = await login({ email, password });
+//         const { token, user } = response;
+
+//         // Store token securely
+//         await setToken("authToken", token);
+
+//         Alert.alert("Success", "Logged in successfully");
+//         router.replace("/home");
+//     } catch (error) {
+//         Alert.alert("Login Failed", error.message || "Please try again");
+//     } finally {
+//         setLoading(false);
+//     }
+// };
 
   return (
     <SafeAreaView className="bg-white h-full">
@@ -21,10 +79,9 @@ const LogIn = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          {/* Logo */}
           <View className="w-full h-32 mb-8 items-center justify-center">
             <Image
-              source={require('../../assets/images/logo.jpg')}
+              source={require("../../assets/images/logo.jpg")}
               style={{ width: 150, height: 150 }}
               resizeMode="contain"
             />
@@ -41,6 +98,8 @@ const LogIn = () => {
               placeholder="Enter your email"
               placeholderTextColor="#999"
               keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
 
@@ -51,31 +110,31 @@ const LogIn = () => {
               placeholder="Enter your password"
               placeholderTextColor="#999"
               secureTextEntry
+              value={password}
+              onChangeText={setPassword}
             />
           </View>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             className="bg-[#007bff] p-4 rounded-lg mb-6"
             onPress={handleLogIn}
+            disabled={loading}
           >
-            <Text className="text-white text-center text-lg font-bold">Log In</Text>
+            <Text className="text-white text-center text-lg font-bold">
+              {loading ? "Logging in..." : "Log In"}
+            </Text>
           </TouchableOpacity>
 
           <View className="flex-row justify-center items-center">
-            <Text className="text-lg text-gray-700">
-              Don't have an account?
-            </Text>
-            <Link
-              href="/sign-up"
-              className="text-lg font-bold text-[#007bff] ml-2"
-            >
+            <Text className="text-lg text-gray-700">Don't have an account?</Text>
+            <Link href="/sign-up" className="text-lg font-bold text-[#007bff] ml-2">
               Signup
             </Link>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
-}
+  );
+};
 
-export default LogIn
+export default LogIn;
