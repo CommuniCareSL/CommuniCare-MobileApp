@@ -3,11 +3,11 @@ import { useRouter, Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { View, Text, ScrollView, Dimensions, TextInput, TouchableOpacity, Image } from "react-native";
 
-const SignIn = () => {
+const LogIn = () => {
   const router = useRouter();
 
-  const handleSignIn = () => {
-    // Here you would typically handle the sign-in logic
+  const handleLogIn = () => {
+    // Here you would typically handle the log-in logic
     // For now, we'll just navigate to the home screen
     router.replace('/home');
   };
@@ -56,9 +56,9 @@ const SignIn = () => {
           
           <TouchableOpacity 
             className="bg-[#007bff] p-4 rounded-lg mb-6"
-            onPress={handleSignIn}
+            onPress={handleLogIn}
           >
-            <Text className="text-white text-center text-lg font-bold">Sign In</Text>
+            <Text className="text-white text-center text-lg font-bold">Log In</Text>
           </TouchableOpacity>
 
           <View className="flex-row justify-center items-center">
@@ -78,4 +78,4 @@ const SignIn = () => {
   )
 }
 
-export default SignIn
+export default LogIn

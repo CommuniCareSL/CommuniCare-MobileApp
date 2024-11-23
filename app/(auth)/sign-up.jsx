@@ -254,12 +254,16 @@ const SignUp = () => {
             )}
           </TouchableOpacity>
           
-          {/* Back to Login */}
-          <View className="mt-6 text-center">
-            <Text>
-              Already have an account?{' '}
-              <Link href="/login" className="text-[#007bff]">Login</Link>
+          <View className="flex-row justify-center items-center">
+            <Text className="text-lg text-gray-700">
+            Already have an account?
             </Text>
+            <Link
+              href="/log-in"
+              className="text-lg font-bold text-[#007bff] ml-2"
+            >
+              LogIn
+            </Link>
           </View>
         </View>
       </ScrollView>
