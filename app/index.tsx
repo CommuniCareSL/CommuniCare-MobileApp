@@ -17,7 +17,7 @@ export default function Index() {
         Welcome to CommuniCare
       </Text>
       <Link 
-        href="/sign-in" 
+        href="/log-in" 
         className="bg-blue-50 px-8 py-4 rounded-full shadow-md active:bg-blue-100"
       >
         <Text className="text-xl font-semibold text-blue-600">
