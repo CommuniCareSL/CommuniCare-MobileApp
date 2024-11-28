@@ -7,17 +7,20 @@ import * as ImagePicker from 'expo-image-picker';
 import ImageUploadModal from '../../components/complaint/ImageUploadModal';
 import LocationPicker from '../../components/complaint/LocationPicker';
 
-// ComplaintDetails component to display the complaint ID
-const ComplaintDetails = () => {
-  const { complaintid } = useLocalSearchParams();
+// Import the categories array
+import categories from '../../data/complaintCategories';
 
-  return (
-    <View style={styles.row}>
-      <Text style={styles.label}>Complaint Category:</Text>
-      <Text>{complaintid}</Text>
-    </View>
-  );
-};
+// ComplaintDetails component to display the complaint ID
+// const ComplaintDetails = () => {
+//   const { complaintid } = useLocalSearchParams();
+
+//   return (
+//     <View style={styles.row}>
+//       <Text style={styles.label}>Complaint Category:</Text>
+//       <Text>{complaintid}</Text>
+//     </View>
+//   );
+// };
 
 // ComplaintForm component
 const ComplaintForm = () => {
@@ -31,6 +34,10 @@ const ComplaintForm = () => {
   const [images, setImages] = useState([null, null, null]);
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  // Find the category title by id
+  const { complaintid } = useLocalSearchParams();
+  const category = categories.find(cat => cat.id === parseInt(complaintid));
 
   const handleSharePhoneNumberChange = () => {
     setSharePhoneNumber(!sharePhoneNumber);
@@ -114,7 +121,11 @@ const ComplaintForm = () => {
       </View>
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Complaint Information</Text>
-        <ComplaintDetails />
+        {/* <ComplaintDetails /> */}
+        <View style={styles.row}>
+          <Text style={styles.label}>Complaint Category:</Text>
+          <Text >{category ? category.title : 'Category not found'}</Text>
+        </View>
         <Text style={styles.sectionTitle}>Complaint Proofs</Text>
         <View style={styles.imageUpload}>
           {images.map((image, index) => (
