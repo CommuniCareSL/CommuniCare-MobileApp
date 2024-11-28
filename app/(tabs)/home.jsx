@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 
+import categories from '../../data/complaintCategories';
+
 const Home = () => {
   const incidents = {
     reported: 1452,
@@ -9,57 +11,57 @@ const Home = () => {
     resolved: 759,
   };
 
-  const categories = [
-    {
-      icon: require('../../assets/images/road.png'),
-      title: 'Road hazards',
-    },
-    {
-      icon: require('../../assets/images/forest.png'),
-      title: 'Unsafe trees in roadside',
-    },
-    {
-      icon: require('../../assets/images/garbage.png'),
-      title: 'Garbage disposal on roadside',
-    },
-    {
-      icon: require('../../assets/images/mosquito.png'),
-      title: 'Mosquito breeding grounds',
-    },
-    {
-      icon: require('../../assets/images/streetlight.png'),
-      title: 'Street lamp malfunction',
-    },
-    {
-      icon: require('../../assets/images/animal.png'),
-      title: 'Stray animals',
-    },
-    {
-      icon: require('../../assets/images/worker.png'),
-      title: 'Unauthorized constructions',
-    },
-    {
-      icon: require('../../assets/images/drain.png'),
-      title: 'Damages to the street drains',
-    },
+  // const categories = [
+  //   {
+  //     icon: require('../../assets/images/road.png'),
+  //     title: 'Road hazards',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/forest.png'),
+  //     title: 'Unsafe trees in roadside',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/garbage.png'),
+  //     title: 'Garbage disposal on roadside',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/mosquito.png'),
+  //     title: 'Mosquito breeding grounds',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/streetlight.png'),
+  //     title: 'Street lamp malfunction',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/animal.png'),
+  //     title: 'Stray animals',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/worker.png'),
+  //     title: 'Unauthorized constructions',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/drain.png'),
+  //     title: 'Damages to the street drains',
+  //   },
     
-    {
-      icon: require('../../assets/images/toilet.png'),
-      title: 'Issues related to public toilets',
-    },
-    {
-      icon: require('../../assets/images/seller.png'),
-      title: 'Unauthorized street sellers',
-    },
-    {
-      icon: require('../../assets/images/wall.png'),
-      title: 'Dangerous Walls or buildings',
-    },
-    {
-      icon: require('../../assets/images/plus.png'),
-      title: 'Others',
-    },
-  ];
+  //   {
+  //     icon: require('../../assets/images/toilet.png'),
+  //     title: 'Issues related to public toilets',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/seller.png'),
+  //     title: 'Unauthorized street sellers',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/wall.png'),
+  //     title: 'Dangerous Walls or buildings',
+  //   },
+  //   {
+  //     icon: require('../../assets/images/plus.png'),
+  //     title: 'Others',
+  //   },
+  // ];
 
   const router = useRouter();
 
@@ -88,7 +90,7 @@ const Home = () => {
           {categories.map((category, index) => (
             <TouchableOpacity
               key={index}
-              onPress={() => router.push(`/complaintdetails/${encodeURIComponent(category.title)}`)}
+              onPress={() => router.push(`/complaintdetails/${encodeURIComponent(category.id)}`)}
               style={styles.categoryButton}
             >
               <View style={styles.categoryContent}>
