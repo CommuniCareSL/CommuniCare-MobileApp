@@ -10,25 +10,11 @@ import LocationPicker from '../../components/complaint/LocationPicker';
 // Import the categories array
 import categories from '../../data/complaintCategories';
 
-// ComplaintDetails component to display the complaint ID
-// const ComplaintDetails = () => {
-//   const { complaintid } = useLocalSearchParams();
-
-//   return (
-//     <View style={styles.row}>
-//       <Text style={styles.label}>Complaint Category:</Text>
-//       <Text>{complaintid}</Text>
-//     </View>
-//   );
-// };
-
 // ComplaintForm component
 const ComplaintForm = () => {
   const navigation = useNavigation();
   const [locationRemarks, setLocationRemarks] = useState('');
   const [complaintDescription, setComplaintDescription] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedCouncil, setSelectedCouncil] = useState('');
   const [sharePhoneNumber, setSharePhoneNumber] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([null, null, null]);
@@ -167,32 +153,6 @@ const ComplaintForm = () => {
           multiline={true}
           numberOfLines={4}
         />
-        {/* <Text style={styles.sectionTitle}>Complaint Receiver</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedDistrict(value)}
-          items={[
-            { label: 'Colombo', value: 'District 1' },
-            { label: 'Galle', value: 'District 2' },
-            { label: 'Mathara', value: 'District 3' },
-            { label: 'Kaluthara', value: 'District 4' },
-            { label: 'Gampaha', value: 'District 5' },
-          ]}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select District', value: null }}
-        />
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedCouncil(value)}
-          items={[
-            { label: 'Colombo Municipal Council', value: 'Council 1' },
-            { label: 'Dehiwala - Mt. Lavinia Municipal Council', value: 'Council 2' },
-            { label: 'Sri Jayawardenepura Kotte Municipal Council', value: 'Council 3' },
-            { label: 'Kaduwela Municipal Council', value: 'Council 4' },
-            { label: 'Moratuwa Municipal Council', value: 'Council 5' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 6' },
-          ]}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select Council', value: null }}
-        /> */}
         <View style={styles.checkboxContainer}>
           <Switch
             value={sharePhoneNumber}
