@@ -14,16 +14,10 @@ import {
 } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 
-// Import the auth service and validation function
+// Import dropdown options
+import { firstDropdownOptions, secondDropdownOptions } from '../../data/districtSabha';
 import { authService } from '../../services/signupService';
-import { validateForm } from '../../utils/signupValidation';  // import validation function
-
-const secondDropdownOptions = {
-  'Select': ['Select'],
-  'Colombo': ['Homagama', 'Kotikawatta', 'Seethawaka'],
-  'Kalutara': ['Agalawatta', 'Beruwela', 'Horana'],
-  'Gampaha': ['Attanagalla', 'Biyagama', 'Divulapitiya'],   
-};
+import { validateForm } from '../../utils/signupValidation';
 
 const SignUp = () => {
   const router = useRouter();
@@ -43,36 +37,26 @@ const SignUp = () => {
   // Error state for form validation
   const [errors, setErrors] = useState({});
 
-  // Dropdown options
-  const firstDropdownOptions = ['Select', 'Colombo', 'Kalutara', 'Gampaha'];
-
   // Handle Sign Up
   const handleSignUp = async () => {
-    // Prepare form data for validation
     const formData = {
       fullName,
       idNumber,
       phoneNumber,
-      firstDropdown,
-      secondDropdown,
+      district: firstDropdown,
+      pradeshiyaSabaha: secondDropdown, // Now passing the ID instead of the name
       email,
       password
     };
 
-    // Validate form
     const validationErrors = validateForm(formData);
     setErrors(validationErrors);
 
-    // If there are errors, return early
-    if (Object.keys(validationErrors).length > 0) {
-      return;
-    }
+    if (Object.keys(validationErrors).length > 0) return;
 
-    // Set loading state
     setIsLoading(true);
 
     try {
-      // Attempt to sign up
       const response = await authService.signUp({
         fullName,
         idNumber,
@@ -83,7 +67,6 @@ const SignUp = () => {
         password
       });
 
-      // Success handling
       Alert.alert(
         'Success', 
         'You have signed up successfully!',
@@ -93,13 +76,11 @@ const SignUp = () => {
         }]
       );
     } catch (error) {
-      // Error handling
       Alert.alert(
         'Signup Failed', 
         error.message || 'An error occurred during signup'
       );
     } finally {
-      // Reset loading state
       setIsLoading(false);
     }
   };
@@ -113,7 +94,6 @@ const SignUp = () => {
             minHeight: Dimensions.get("window").height - 100,
           }}
         >
-          {/* Logo */}
           <View className="w-full h-12 mb-8 items-center justify-center">
             <Image
               source={require('../../assets/images/logo.jpg')}
@@ -169,47 +149,77 @@ const SignUp = () => {
             )}
           </View>
 
-          {/* District Dropdown */}
-          <View className="mb-6">
-            <Text className="text-gray-700 mb-2 text-lg">Select Your District</Text>
-            <View className="bg-gray-100 rounded-lg border border-gray-300">
-              <Picker
-                selectedValue={firstDropdown}
-                onValueChange={(itemValue) => {
-                  setFirstDropdown(itemValue);
-                  setSecondDropdown('Select');
-                }}
-                style={{ color: '#333' }}
-              >
-                {firstDropdownOptions.map((option) => (
-                  <Picker.Item key={option} label={option} value={option} />
+        {/* District Dropdown */}
+        <View className="mb-6">
+          <Text className="text-gray-700 mb-2 text-lg">Select Your District</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              borderColor: '#ccc', // Neutral border color
+              borderRadius: 8,
+              backgroundColor: '#f9f9f9',
+              paddingVertical: 0, // Remove extra padding
+              overflow: 'hidden',
+            }}
+          >
+            <Picker
+              selectedValue={firstDropdown}
+              onValueChange={(itemValue) => {
+                setFirstDropdown(itemValue);
+                setSecondDropdown('Select'); // Reset second dropdown
+              }}
+              style={{
+                height: 55, // Fixed height for visibility
+                color: '#333', // Ensure text is readable
+              }}
+              dropdownIconColor="#ccc" // Change dropdown arrow color to match border
+              mode="dropdown" // Dropdown mode instead of default dialog
+            >
+              {/* Single "Select" placeholder */}
+              <Picker.Item label="Select" value="Select" />
+              {firstDropdownOptions
+                .filter((option) => option.name !== 'Select') // Remove duplicate "Select"
+                .map((option) => (
+                  <Picker.Item key={option.districtid} label={option.name} value={option.name} />
                 ))}
-              </Picker>
-            </View>
-            {errors.district && (
-              <Text className="text-red-500 mt-1">{errors.district}</Text>
-            )}
+            </Picker>
           </View>
+          {errors.district && <Text style={{ color: 'red', marginTop: 5 }}>{errors.district}</Text>}
+        </View>
 
-          {/* Pradeshiya Sabha Dropdown */}
-          <View className="mb-6">
-            <Text className="text-gray-700 mb-2 text-lg">Select Your Pradeshiya Sabaha</Text>
-            <View className="bg-gray-100 rounded-lg border border-gray-300">
-              <Picker
-                selectedValue={secondDropdown}
-                onValueChange={setSecondDropdown}
-                style={{ color: '#333' }}
-                enabled={firstDropdown !== 'Select'}
-              >
-                {secondDropdownOptions[firstDropdown].map((option) => (
-                  <Picker.Item key={option} label={option} value={option} />
+        {/* Pradeshiya Sabha Dropdown */}
+        <View className="mb-6">
+          <Text className="text-gray-700 mb-2 text-lg">Select Your Pradeshiya Sabha</Text>
+          <View
+            style={{
+              borderWidth: 1,
+              borderColor: firstDropdown !== 'Select' ? '#ccc' : '#e9e9e9',
+              borderRadius: 8,
+              backgroundColor: firstDropdown !== 'Select' ? '#f9f9f9' : '#e9e9e9',
+              overflow: 'hidden',
+            }}
+          >
+            <Picker
+              selectedValue={secondDropdown} // This will store the selected Sabha ID
+              onValueChange={setSecondDropdown} // Set the selected Sabha ID
+              style={{
+                height: 60,
+                color: firstDropdown !== 'Select' ? '#333' : '#aaa',
+              }}
+              dropdownIconColor="#ccc"
+              mode="dropdown"
+              enabled={firstDropdown !== 'Select'}
+            >
+              <Picker.Item label="Select" value="Select" />
+              {firstDropdown !== 'Select' &&
+                secondDropdownOptions[firstDropdown]?.map((option) => (
+                  <Picker.Item key={option.id} label={option.name} value={option.id} />
                 ))}
-              </Picker>
-            </View>
-            {errors.pradeshiyaSabaha && (
-              <Text className="text-red-500 mt-1">{errors.pradeshiyaSabaha}</Text>
-            )}
+            </Picker>
           </View>
+          {errors.pradeshiyaSabaha && <Text style={{ color: 'red', marginTop: 5 }}>{errors.pradeshiyaSabaha}</Text>}
+        </View>
+
 
           {/* Email Field */}
           <View className="mb-6">
@@ -256,7 +266,7 @@ const SignUp = () => {
           
           <View className="flex-row justify-center items-center">
             <Text className="text-lg text-gray-700">
-            Already have an account?
+              Already have an account?
             </Text>
             <Link
               href="/log-in"
