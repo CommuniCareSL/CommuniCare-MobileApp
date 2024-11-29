@@ -160,7 +160,7 @@ const ComplaintForm = () => {
             trackColor={{ false: '#767577', true: '#81b0ff' }}
             thumbColor={sendAnonymous ? '#f5dd4b' : '#f4f3f4'}
           />
-          <Text style={styles.checkboxText}>Share phone number with council</Text>
+          <Text style={styles.checkboxText}>Send the complaint anonymously</Text>
         </View>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.buttonText}>SUBMIT</Text>
