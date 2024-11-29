@@ -15,7 +15,7 @@ const ComplaintForm = () => {
   const navigation = useNavigation();
   const [locationRemarks, setLocationRemarks] = useState('');
   const [complaintDescription, setComplaintDescription] = useState('');
-  const [sharePhoneNumber, setSharePhoneNumber] = useState(false);
+  const [sendAnonymous, setSendAnonymous] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([null, null, null]);
   const [showMap, setShowMap] = useState(false);
@@ -25,8 +25,8 @@ const ComplaintForm = () => {
   const { complaintid } = useLocalSearchParams();
   const category = categories.find(cat => cat.id === parseInt(complaintid));
 
-  const handleSharePhoneNumberChange = () => {
-    setSharePhoneNumber(!sharePhoneNumber);
+  const handleSendAnonymousChange = () => {
+    setSendAnonymous(!sendAnonymous);
   };
 
   const handleSubmit = () => {
@@ -35,7 +35,7 @@ const ComplaintForm = () => {
       complaintDescription,
       selectedDistrict,
       selectedCouncil,
-      sharePhoneNumber,
+      sendAnonymous,
       images,
       selectedLocation,
     });
@@ -155,10 +155,10 @@ const ComplaintForm = () => {
         />
         <View style={styles.checkboxContainer}>
           <Switch
-            value={sharePhoneNumber}
-            onValueChange={handleSharePhoneNumberChange}
+            value={sendAnonymous}
+            onValueChange={handleSendAnonymousChange}
             trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={sharePhoneNumber ? '#f5dd4b' : '#f4f3f4'}
+            thumbColor={sendAnonymous ? '#f5dd4b' : '#f4f3f4'}
           />
           <Text style={styles.checkboxText}>Share phone number with council</Text>
         </View>
