@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "services/api.js", "services/storage.js", "app/(auth)/sign-up.jsx", "utils/signupValidation.js"  ]
+, "services/api.js", "services/storage.js", "app/(auth)/sign-up.jsx", "utils/signupValidation.js", "app/(auth)/log-in.jsx", "hooks/storage.js"  ]
 }
