@@ -7,33 +7,26 @@ import * as ImagePicker from 'expo-image-picker';
 import ImageUploadModal from '../../components/complaint/ImageUploadModal';
 import LocationPicker from '../../components/complaint/LocationPicker';
 
-// ComplaintDetails component to display the complaint ID
-const ComplaintDetails = () => {
-  const { complaintid } = useLocalSearchParams();
-
-  return (
-    <View style={styles.row}>
-      <Text style={styles.label}>Complaint Category:</Text>
-      <Text>{complaintid}</Text>
-    </View>
-  );
-};
+// Import the categories array
+import categories from '../../data/complaintCategories';
 
 // ComplaintForm component
 const ComplaintForm = () => {
   const navigation = useNavigation();
   const [locationRemarks, setLocationRemarks] = useState('');
   const [complaintDescription, setComplaintDescription] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedCouncil, setSelectedCouncil] = useState('');
-  const [sharePhoneNumber, setSharePhoneNumber] = useState(false);
+  const [sendAnonymous, setSendAnonymous] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [images, setImages] = useState([null, null, null]);
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  const handleSharePhoneNumberChange = () => {
-    setSharePhoneNumber(!sharePhoneNumber);
+  // Find the category title by id
+  const { complaintid } = useLocalSearchParams();
+  const category = categories.find(cat => cat.id === parseInt(complaintid));
+
+  const handleSendAnonymousChange = () => {
+    setSendAnonymous(!sendAnonymous);
   };
 
   const handleSubmit = () => {
@@ -42,7 +35,7 @@ const ComplaintForm = () => {
       complaintDescription,
       selectedDistrict,
       selectedCouncil,
-      sharePhoneNumber,
+      sendAnonymous,
       images,
       selectedLocation,
     });
@@ -114,7 +107,11 @@ const ComplaintForm = () => {
       </View>
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Complaint Information</Text>
-        <ComplaintDetails />
+        {/* <ComplaintDetails /> */}
+        <View style={styles.row}>
+          <Text style={styles.label}>Complaint Category:</Text>
+          <Text >{category ? category.title : 'Category not found'}</Text>
+        </View>
         <Text style={styles.sectionTitle}>Complaint Proofs</Text>
         <View style={styles.imageUpload}>
           {images.map((image, index) => (
@@ -156,40 +153,14 @@ const ComplaintForm = () => {
           multiline={true}
           numberOfLines={4}
         />
-        {/* <Text style={styles.sectionTitle}>Complaint Receiver</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedDistrict(value)}
-          items={[
-            { label: 'Colombo', value: 'District 1' },
-            { label: 'Galle', value: 'District 2' },
-            { label: 'Mathara', value: 'District 3' },
-            { label: 'Kaluthara', value: 'District 4' },
-            { label: 'Gampaha', value: 'District 5' },
-          ]}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select District', value: null }}
-        />
-        <RNPickerSelect
-          onValueChange={(value) => setSelectedCouncil(value)}
-          items={[
-            { label: 'Colombo Municipal Council', value: 'Council 1' },
-            { label: 'Dehiwala - Mt. Lavinia Municipal Council', value: 'Council 2' },
-            { label: 'Sri Jayawardenepura Kotte Municipal Council', value: 'Council 3' },
-            { label: 'Kaduwela Municipal Council', value: 'Council 4' },
-            { label: 'Moratuwa Municipal Council', value: 'Council 5' },
-            { label: 'Kollonnawa Urban Council', value: 'Council 6' },
-          ]}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select Council', value: null }}
-        /> */}
         <View style={styles.checkboxContainer}>
           <Switch
-            value={sharePhoneNumber}
-            onValueChange={handleSharePhoneNumberChange}
+            value={sendAnonymous}
+            onValueChange={handleSendAnonymousChange}
             trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={sharePhoneNumber ? '#f5dd4b' : '#f4f3f4'}
+            thumbColor={sendAnonymous ? '#f5dd4b' : '#f4f3f4'}
           />
-          <Text style={styles.checkboxText}>Share phone number with council</Text>
+          <Text style={styles.checkboxText}>Send the complaint anonymously</Text>
         </View>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.buttonText}>SUBMIT</Text>

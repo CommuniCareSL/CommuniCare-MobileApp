@@ -21,7 +21,7 @@ export const authService = {
         idNumber: userData.idNumber,
         phoneNumber: userData.phoneNumber,
         district: userData.district,
-        pradeshiyaSabaha: userData.pradeshiyaSabaha,
+        sabhaId: userData.pradeshiyaSabaha,
         email: userData.email,
         password: userData.password
       }, {
