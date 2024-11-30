@@ -1,100 +1,233 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  Platform,
+  ScrollView,
+} from 'react-native';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+// Validation schema for the form
+const validationSchema = Yup.object().shape({
+  deceasedName: Yup.string().required('Name of the deceased is required'),
+  deceasedAddress: Yup.string().required('Address is required'),
+  dateOfDeath: Yup.string().required('Date of death is required'),
+  notifierName: Yup.string().required('Name of notifier is required'),
+  notifierAddress: Yup.string().required('Address of notifier is required'),
+  idNumber: Yup.string().required('ID number is required'),
+  funeralDate: Yup.string().required('Funeral date is required'),
+  timeSlot: Yup.string().required('Time slot is required'),
+});
 
 const Screen = () => {
+  const [showDeathDatePicker, setShowDeathDatePicker] = useState(false);
+  const [showFuneralDatePicker, setShowFuneralDatePicker] = useState(false);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>crematorial Reservation</Text>
-        <View style={styles.headerRight}>
-          <Text style={styles.time}></Text>
-          <Image
-            source={require('../../assets/images/service.png')}
-            style={styles.icon}
-          />
-          <Image
-            source={require('../../assets/images/service.png')}
-            style={styles.icon}
-          />
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Crematorial Reservation</Text>
         </View>
-      </View>
-      <View style={styles.content}>
-        <Image
-          source={require('../../assets/images/service.png')}
-          style={styles.profileImage}
-        />
-        <View style={styles.jobDetails}>
-          <Text style={styles.jobTitle}>Reserve crematorial</Text>
-          <View style={styles.location}>
-            <Image
-              source={require('../../assets/images/service.png')}
-              style={styles.locationIcon}
-            />
-            <Text style={styles.locationText}></Text>
+        <View style={styles.content}>
+          <Image
+            source={require('../../assets/images/service.png')}
+            style={styles.profileImage}
+          />
+          <View style={styles.jobDetails}>
+            <Text style={styles.jobTitle}>Reserve Crematorial</Text>
+            <Text style={styles.salary}>Rs:8500 per</Text>
           </View>
-          <Text style={styles.jobType}></Text>
-          <Text style={styles.salary}>Rs:8500 per </Text>
         </View>
+
+        {/* Form Section */}
+        <Formik
+          initialValues={{
+            deceasedName: '',
+            deceasedAddress: '',
+            dateOfDeath: '',
+            notifierName: '',
+            notifierAddress: '',
+            idNumber: '',
+            funeralDate: '',
+            timeSlot: '',
+          }}
+          validationSchema={validationSchema}
+          onSubmit={(values) => {
+            console.log(values); // Handle form submission
+          }}
+        >
+          {({
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            setFieldValue,
+            values,
+            errors,
+            touched,
+          }) => (
+            <View style={styles.form}>
+              <TextInput
+                style={styles.input}
+                placeholder="Name of the deceased"
+                onChangeText={handleChange('deceasedName')}
+                onBlur={handleBlur('deceasedName')}
+                value={values.deceasedName}
+              />
+              {touched.deceasedName && errors.deceasedName && (
+                <Text style={styles.error}>{errors.deceasedName}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Address of the deceased"
+                onChangeText={handleChange('deceasedAddress')}
+                onBlur={handleBlur('deceasedAddress')}
+                value={values.deceasedAddress}
+              />
+              {touched.deceasedAddress && errors.deceasedAddress && (
+                <Text style={styles.error}>{errors.deceasedAddress}</Text>
+              )}
+
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setShowDeathDatePicker(true)}
+              >
+                <Text style={styles.datePickerText}>
+                  {values.dateOfDeath || 'Select Date of Death'}
+                </Text>
+              </TouchableOpacity>
+              {showDeathDatePicker && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowDeathDatePicker(false);
+                    if (selectedDate) {
+                      setFieldValue(
+                        'dateOfDeath',
+                        selectedDate.toISOString().split('T')[0]
+                      );
+                    }
+                  }}
+                />
+              )}
+              {touched.dateOfDeath && errors.dateOfDeath && (
+                <Text style={styles.error}>{errors.dateOfDeath}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Name of Notifier"
+                onChangeText={handleChange('notifierName')}
+                onBlur={handleBlur('notifierName')}
+                value={values.notifierName}
+              />
+              {touched.notifierName && errors.notifierName && (
+                <Text style={styles.error}>{errors.notifierName}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="Address of Notifier"
+                onChangeText={handleChange('notifierAddress')}
+                onBlur={handleBlur('notifierAddress')}
+                value={values.notifierAddress}
+              />
+              {touched.notifierAddress && errors.notifierAddress && (
+                <Text style={styles.error}>{errors.notifierAddress}</Text>
+              )}
+
+              <TextInput
+                style={styles.input}
+                placeholder="ID number of Informant"
+                onChangeText={handleChange('idNumber')}
+                onBlur={handleBlur('idNumber')}
+                value={values.idNumber}
+              />
+              {touched.idNumber && errors.idNumber && (
+                <Text style={styles.error}>{errors.idNumber}</Text>
+              )}
+
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setShowFuneralDatePicker(true)}
+              >
+                <Text style={styles.datePickerText}>
+                  {values.funeralDate || 'Select Funeral Date'}
+                </Text>
+              </TouchableOpacity>
+              {showFuneralDatePicker && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowFuneralDatePicker(false);
+                    if (selectedDate) {
+                      setFieldValue(
+                        'funeralDate',
+                        selectedDate.toISOString().split('T')[0]
+                      );
+                    }
+                  }}
+                />
+              )}
+              {touched.funeralDate && errors.funeralDate && (
+                <Text style={styles.error}>{errors.funeralDate}</Text>
+              )}
+
+              <Text style={styles.label}>Select Time Slot:</Text>
+              {['10-12', '1-3', '3-5'].map((slot) => (
+                <TouchableOpacity
+                  key={slot}
+                  style={[
+                    styles.timeSlot,
+                    values.timeSlot === slot && styles.selectedTimeSlot,
+                  ]}
+                  onPress={() => setFieldValue('timeSlot', slot)}
+                >
+                  <Text style={styles.timeSlotText}>{slot}</Text>
+                </TouchableOpacity>
+              ))}
+              {touched.timeSlot && errors.timeSlot && (
+                <Text style={styles.error}>{errors.timeSlot}</Text>
+              )}
+
+              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.buttonText}>Proceed to Payment</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </Formik>
       </View>
-      <View style={styles.jobDescription}>
-        <Text style={styles.sectionTitle}>Details:</Text>
-        <Text style={styles.descriptionText}>
-
-        01. අයදුම්පත්‍රයක් ලබගෙන් කොරනේලිස් විසින් අත්සන් කරන ලද මරණ සහතිකයේ මුල් පිටපතෙහි පිටපතක්.
-      
-    
-        </Text>
-        <Text style={styles.descriptionText}>
-
-        02. මරණ සහතිකයේ නාකියාදෙනිය අදහනගරයෙහි ආදාහනය කිරීමට අවසර ලබාදෙමි ලෙස සදහන් විය යුතුය.
-        </Text>
-        <Text style={styles.descriptionText}>
-
-        
-03.අදහනාගාරය වෙන් කිරීමේ ගාස්තුව බල ප්‍රදේශය තුල නම් 10000/= බල ප්‍රදේශයෙන් පිටත නම් 13000/=. 
-    
-        </Text>
-        <Text style={styles.sectionTitle}>Requirements:</Text>
-        <Text style={styles.descriptionText}>
-        මරණ සහතිකයේ පිටපතක්.
-        </Text>
-      </View>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Proceed to payment</Text>
-      </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff', // Changed background to white
+    backgroundColor: '#fff',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#000', // Changed text to black
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  time: {
-    fontSize: 16,
-    color: '#000', // Changed text to black
-    marginRight: 10,
-  },
-  icon: {
-    width: 20,
-    height: 20,
+    color: '#000',
   },
   content: {
     flexDirection: 'row',
@@ -113,57 +246,73 @@ const styles = StyleSheet.create({
   jobTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#000', // Changed text to black
+    color: '#000',
     marginBottom: 5,
-  },
-  location: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  locationIcon: {
-    width: 15,
-    height: 15,
-    marginRight: 5,
-  },
-  locationText: {
-    color: '#000', // Changed text to black
-  },
-  jobType: {
-    color: '#000', // Changed text to black
-    marginBottom: 10,
   },
   salary: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#000', // Changed text to black
+    color: '#000',
   },
-  jobDescription: {
+  form: {
     padding: 20,
-    backgroundColor: '#fff',
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000', // Changed text to black
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
     marginBottom: 10,
   },
-  descriptionText: {
-    color: '#000', // Changed text to black
-    marginBottom: 15,
+  datePickerButton: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  datePickerText: {
+    color: '#000',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#000',
+  },
+  timeSlot: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  selectedTimeSlot: {
+    backgroundColor: '#ffc107',
+  },
+  timeSlotText: {
+    color: '#000',
+    fontSize: 16,
   },
   button: {
     backgroundColor: '#ffc107',
     padding: 15,
-    margin: 20,
     borderRadius: 5,
+    alignItems: 'center',
   },
   buttonText: {
-    color: '#000', // Changed text to black
-    textAlign: 'center',
-    fontSize: 18,
+    color: '#000',
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  error: {
+    color: 'red',
+    fontSize: 12,
+    marginBottom: 5,
   },
 });
 
 export default Screen;
+
+
