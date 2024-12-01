@@ -5,8 +5,8 @@ import { useRouter } from 'expo-router';
 
 const CardImage = ({ type }) => {
   switch (type) {
-    case 'reservation':
-      return <Image source={require('../../assets/images/service.png')} style={styles.cardIcon} />;
+    // case 'reservation':
+    //   return <Image source={require('../../assets/images/service.png')} style={styles.cardIcon} />;
     case 'rental':
       return <Image source={require('../../assets/images/rent.png')} style={styles.cardIcon} />;
     default:
@@ -45,15 +45,15 @@ const CategorySection = ({ title, services, type }) => (
 const Services = () => {
   const router = useRouter();
 
-  const reservationServices = [
-    { title: "Booking the crematorium (8)", description: "Crematorium Booking", onPress: () => router.push('services/crematorium') },
-    { title: "Segregation of playgrounds (10)", description: "Segregation of playgrounds", onPress: () => {/* handle navigation */} },
-    { title: "Allotment of satipola land (19)", description: "Allotment of satipola land", onPress: () => {/* handle navigation */} },
-    { title: "Allotment of parking in front of City Hall (19)", description: "Allotment of parking in front of City Hall", onPress: () => {/* handle navigation */} },
-    { title: "Allotment of community hall (19)", description: "Allotment of community hall", onPress: () => {/* handle navigation */} },
-    { title: "Avail Gali Bowsara service (19)", description: "Avail Gali Bowsara service", onPress: () => {/* handle navigation */} },
-    { title: "Display of advertisements(19)", description: "Display of advertisements", onPress: () => {/* handle navigation */} },
-  ];
+  // const reservationServices = [
+  //   { title: "Booking the crematorium (8)", description: "Crematorium Booking", onPress: () => router.push('services/crematorium') },
+  //   { title: "Segregation of playgrounds (10)", description: "Segregation of playgrounds", onPress: () => {/* handle navigation */} },
+  //   { title: "Allotment of satipola land (19)", description: "Allotment of satipola land", onPress: () => {/* handle navigation */} },
+  //   { title: "Allotment of parking in front of City Hall (19)", description: "Allotment of parking in front of City Hall", onPress: () => {/* handle navigation */} },
+  //   { title: "Allotment of community hall (19)", description: "Allotment of community hall", onPress: () => {/* handle navigation */} },
+  //   { title: "Avail Gali Bowsara service (19)", description: "Avail Gali Bowsara service", onPress: () => {/* handle navigation */} },
+  //   { title: "Display of advertisements(19)", description: "Display of advertisements", onPress: () => {/* handle navigation */} },
+  // ];
 
   const rentalServices = [
     { title: "Concrete Mixer Rental (23)", description: "Concrete Mixer Rental", onPress: () => {/* handle navigation */} },
@@ -68,7 +68,7 @@ const Services = () => {
       <ScrollView style={styles.content}>
         <Text style={styles.header}>Online Services</Text>
   
-        <CategorySection title="Reservations" services={reservationServices} type="reservation" />
+        {/* <CategorySection title="Reservations" services={reservationServices} type="reservation" /> */}
         <CategorySection title="Rentals" services={rentalServices} type="rental" />
       </ScrollView>
     </SafeAreaView>

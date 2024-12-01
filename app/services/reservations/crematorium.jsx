@@ -37,7 +37,7 @@ const Screen = () => {
         </View>
         <View style={styles.content}>
           <Image
-            source={require('../../assets/images/service.png')}
+            source={require('../../../assets/images/service.png')}
             style={styles.profileImage}
           />
           <View style={styles.jobDetails}>
@@ -202,7 +202,7 @@ const Screen = () => {
               )}
 
               <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Proceed to Payment</Text>
+                <Text style={styles.buttonText}>Submit</Text>
               </TouchableOpacity>
             </View>
           )}
