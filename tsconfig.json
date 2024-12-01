@@ -16,6 +16,8 @@
     "app/(auth)/sign-up.jsx",
     "utils/signupValidation.js",
     "app/(auth)/log-in.jsx",
-    "hooks/storage.js"
+    "hooks/storage.js",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ]
 }
