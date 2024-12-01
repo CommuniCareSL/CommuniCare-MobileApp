@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 
+import { useEffect, useState } from "react";
+import { getUserDetails } from "../../hooks/storage";
+
 import categories from '../../data/complaintCategories';
 
 const Home = () => {
@@ -11,57 +14,27 @@ const Home = () => {
     resolved: 759,
   };
 
-  // const categories = [
-  //   {
-  //     icon: require('../../assets/images/road.png'),
-  //     title: 'Road hazards',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/forest.png'),
-  //     title: 'Unsafe trees in roadside',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/garbage.png'),
-  //     title: 'Garbage disposal on roadside',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/mosquito.png'),
-  //     title: 'Mosquito breeding grounds',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/streetlight.png'),
-  //     title: 'Street lamp malfunction',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/animal.png'),
-  //     title: 'Stray animals',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/worker.png'),
-  //     title: 'Unauthorized constructions',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/drain.png'),
-  //     title: 'Damages to the street drains',
-  //   },
-    
-  //   {
-  //     icon: require('../../assets/images/toilet.png'),
-  //     title: 'Issues related to public toilets',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/seller.png'),
-  //     title: 'Unauthorized street sellers',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/wall.png'),
-  //     title: 'Dangerous Walls or buildings',
-  //   },
-  //   {
-  //     icon: require('../../assets/images/plus.png'),
-  //     title: 'Others',
-  //   },
-  // ];
+  //Name of the user
+  const [fullName, setFullName] = useState("");
+
+  useEffect(() => {
+    // Fetch user details on component mount
+    const fetchUserDetails = async () => {
+      try {
+        const userDetails = await getUserDetails();
+        if (userDetails) {
+          setFullName(userDetails.fullName); // Accessing 'fullName' from the decoded token
+        } else {
+          console.log("No user details found");
+        }
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
+
 
   const router = useRouter();
 
@@ -69,7 +42,8 @@ const Home = () => {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello Chinthana!</Text>
+          {/* <Text style={styles.greeting}>Hello Chinthana!</Text> */}
+          <Text style={styles.greeting}>Hello{fullName ? `, ${fullName}` : ""}!</Text>
           <Text style={styles.subHeader}>Easily Connect with Your Local Government Office</Text>
           <View style={styles.incidentsContainer}>
             <View style={styles.incidentBox}>
