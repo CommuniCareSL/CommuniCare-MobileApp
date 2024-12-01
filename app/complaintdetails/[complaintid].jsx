@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import RNPickerSelect from 'react-native-picker-select';
-import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { useLocalSearchParams } from 'expo-router';
+
 import ImageUploadModal from '../../components/complaint/ImageUploadModal';
 import LocationPicker from '../../components/complaint/LocationPicker';
+import { getUserDetails } from "../../hooks/storage";
+import { submitComplaint, validateComplaintData } from '../../services/complaintService';
+import * as FileSystem from 'expo-file-system';
 
 // Import the categories array
 import categories from '../../data/complaintCategories';
@@ -20,8 +23,28 @@ const ComplaintForm = () => {
   const [images, setImages] = useState([null, null, null]);
   const [showMap, setShowMap] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Find the category title by id
+  useEffect(() => {
+    // Fetch userId when the page loads
+    const fetchUserId = async () => {
+      try {
+        const userDetails = await getUserDetails();
+        if (userDetails) {
+          setUserId(userDetails.userId);
+        } else {
+          console.log("No user details found");
+        }
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
+  // Find the category title and ID by id
   const { complaintid } = useLocalSearchParams();
   const category = categories.find(cat => cat.id === parseInt(complaintid));
 
@@ -29,17 +52,51 @@ const ComplaintForm = () => {
     setSendAnonymous(!sendAnonymous);
   };
 
-  const handleSubmit = () => {
-    console.log('Form submitted with data:', {
+  const handleSubmit = async () => {
+    // Prepare complaint data
+    const complaintData = {
+      categoryId: category.id,
+      userId: userId,
+      sendAnonymous,
       locationRemarks,
       complaintDescription,
-      selectedDistrict,
-      selectedCouncil,
-      sendAnonymous,
-      images,
       selectedLocation,
-    });
-    navigation.navigate('ComplaintDetails');
+      images: [],
+    };
+  
+    // Convert images to Base64
+  try {
+    for (const imageUri of images.filter(img => img)) { // Only process non-null images
+      const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
+      complaintData.images.push(`data:image/jpeg;base64,${base64Image}`);
+    }
+  } catch (error) {
+    Alert.alert('Image Error', 'Failed to process images. Please try again.');
+    return;
+  }
+  
+    // Validate the complaint data
+    const { isValid, errors } = validateComplaintData(complaintData);
+  
+    if (!isValid) {
+      Alert.alert('Validation Error', errors.join('\n'), [{ text: 'OK' }]);
+      return;
+    }
+  
+    try {
+      setIsSubmitting(true);
+  
+      // Submit the complaint
+      const response = await submitComplaint(complaintData);
+  
+      Alert.alert('Success', 'Complaint submitted successfully', [
+        { text: 'OK', onPress: () => navigation.navigate('ComplaintDetails') },
+      ]);
+    } catch (error) {
+      Alert.alert('Submission Failed', error.message || 'Unable to submit complaint', [{ text: 'OK' }]);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLocationPress = () => {
@@ -52,7 +109,7 @@ const ComplaintForm = () => {
     setLocationRemarks(`Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)}`);
   };
 
-  const handleImageUpload = (index) => {
+  const handleImageUpload = () => {
     setModalVisible(true);
   };
 
@@ -67,10 +124,18 @@ const ComplaintForm = () => {
 
     if (!result.canceled) {
       const newImages = [...images];
-      newImages[images.findIndex(img => img === null)] = result.assets[0].uri;
-      setImages(newImages);
+      const nullIndex = newImages.findIndex(img => img === null);
+      if (nullIndex !== -1) {
+        newImages[nullIndex] = result.assets[0].uri;
+        setImages(newImages);
+        console.log("Updated Images Array after camera select:", newImages); // Debug log after update
+      }
     }
   };
+
+  // useEffect(() => {
+  //   console.log("Updated Images Array:", images);
+  // }, [images]);
 
   const handleGallerySelect = async () => {
     setModalVisible(false);
@@ -83,8 +148,11 @@ const ComplaintForm = () => {
 
     if (!result.canceled) {
       const newImages = [...images];
-      newImages[images.findIndex(img => img === null)] = result.assets[0].uri;
-      setImages(newImages);
+      const nullIndex = newImages.findIndex(img => img === null);
+      if (nullIndex !== -1) {
+        newImages[nullIndex] = result.assets[0].uri;
+        setImages(newImages);
+      }
     }
   };
 
@@ -107,10 +175,9 @@ const ComplaintForm = () => {
       </View>
       <View style={styles.content}>
         <Text style={styles.sectionTitle}>Complaint Information</Text>
-        {/* <ComplaintDetails /> */}
         <View style={styles.row}>
           <Text style={styles.label}>Complaint Category:</Text>
-          <Text >{category ? category.title : 'Category not found'}</Text>
+          <Text>{category ? category.title : 'Category not found'}</Text>
         </View>
         <Text style={styles.sectionTitle}>Complaint Proofs</Text>
         <View style={styles.imageUpload}>
@@ -118,7 +185,7 @@ const ComplaintForm = () => {
             <TouchableOpacity
               key={index}
               style={styles.imageButton}
-              onPress={() => handleImageUpload(index)}
+              onPress={handleImageUpload}
             >
               {image ? (
                 <Image source={{ uri: image }} style={styles.uploadedImage} />
@@ -162,8 +229,14 @@ const ComplaintForm = () => {
           />
           <Text style={styles.checkboxText}>Send the complaint anonymously</Text>
         </View>
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>SUBMIT</Text>
+        <TouchableOpacity 
+          style={styles.submitButton} 
+          onPress={handleSubmit}
+          disabled={isSubmitting}
+        >
+          <Text style={styles.buttonText}>
+            {isSubmitting ? 'SUBMITTING...' : 'SUBMIT'}
+          </Text>
         </TouchableOpacity>
       </View>
       <ImageUploadModal
