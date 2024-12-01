@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Switch, StyleSheet, Scr
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
+import { useRouter } from "expo-router";
 
 import ImageUploadModal from '../../components/complaint/ImageUploadModal';
 import LocationPicker from '../../components/complaint/LocationPicker';
@@ -25,6 +26,8 @@ const ComplaintForm = () => {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [userId, setUserId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const router = useRouter(); // router for navigate to home page
 
   useEffect(() => {
     // Fetch userId when the page loads
@@ -90,7 +93,7 @@ const ComplaintForm = () => {
       const response = await submitComplaint(complaintData);
   
       Alert.alert('Success', 'Complaint submitted successfully', [
-        { text: 'OK', onPress: () => navigation.navigate('ComplaintDetails') },
+        { text: 'OK', onPress: () => router.replace('/home'), },
       ]);
     } catch (error) {
       Alert.alert('Submission Failed', error.message || 'Unable to submit complaint', [{ text: 'OK' }]);
@@ -128,7 +131,7 @@ const ComplaintForm = () => {
       if (nullIndex !== -1) {
         newImages[nullIndex] = result.assets[0].uri;
         setImages(newImages);
-        console.log("Updated Images Array after camera select:", newImages); // Debug log after update
+        //console.log("Updated Images Array after camera select:", newImages); // Debug log after update
       }
     }
   };
