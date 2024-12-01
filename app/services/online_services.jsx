@@ -26,20 +26,20 @@ const Services = () => {
           source={require('../../assets/images/logo.jpg')} // Replace with your actual logo path
           style={styles.logo}
         />
-        <Text style={styles.logoText}>COMMUNI CARE</Text>
+        
         
         <ServiceCard 
-          title="Online Services" 
+          title="Reservation Services" 
           description="Easily access our services online from home by single touch."
           icon="people-circle-outline"
-          onPress={() => router.push('/services/online_services')}
+          onPress={() => router.push('/services/reservation_servises')}
         />
         
         <ServiceCard 
-          title="Appointment Services" 
+          title="Rental Services" 
           description="Book an appointment for services that need an in-person visit."
-          icon="calendar-outline"
-          onPress={() => router.push('/services/appointment_services')}
+          icon="construct-outline" 
+          onPress={() => router.push('/services/rental_services')}
         />
       </View>
     </SafeAreaView>
@@ -97,6 +97,3 @@ const styles = StyleSheet.create({
 });
 
 export default Services;
-
-
-
