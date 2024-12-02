@@ -1,13 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const LanguageSelectionModal = ({ visible, onClose, onSelectLanguage, selectedLanguage }) => {
+const LanguageSelectionModal = ({ visible, onClose }) => {
+  const { i18n } = useTranslation();
+  const currentLanguage = i18n.language;
+
   const languages = [
     { code: 'en', name: 'English' },
     { code: 'si', name: 'Sinhala' },
     { code: 'ta', name: 'Tamil' }
   ];
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    onClose();
+  };
 
   return (
     <Modal
@@ -24,17 +33,30 @@ const LanguageSelectionModal = ({ visible, onClose, onSelectLanguage, selectedLa
               key={lang.code}
               style={[
                 styles.languageOption,
-                selectedLanguage === lang.code && styles.selectedLanguage
+                currentLanguage === lang.code && styles.selectedLanguageOption
               ]}
-              onPress={() => onSelectLanguage(lang.code)}
+              onPress={() => changeLanguage(lang.code)}
             >
-              <Text style={styles.languageText}>{lang.name}</Text>
-              {selectedLanguage === lang.code && (
-                <Icon name="check" size={24} color="#007bff" />
+              <Text style={[
+                styles.languageText,
+                currentLanguage === lang.code && styles.selectedLanguageText
+              ]}>
+                {lang.name}
+              </Text>
+              {currentLanguage === lang.code && (
+                <Icon 
+                  name="check" 
+                  size={24} 
+                  color="#007bff" 
+                  style={styles.checkIcon} 
+                />
               )}
             </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <TouchableOpacity 
+            style={styles.closeButton} 
+            onPress={onClose}
+          >
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
@@ -69,7 +91,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  // Language Selection Styles
+  // Language Option Styles
   languageOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -79,15 +101,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
   },
-  selectedLanguage: {
-    backgroundColor: '#f0f0f0',
+  selectedLanguageOption: {
+    backgroundColor: '#f0f6ff', // Light blue background for selected language
   },
   languageText: {
     fontSize: 16,
     color: '#333',
   },
-   // Button Styles
-   closeButton: {
+  selectedLanguageText: {
+    color: '#007bff', // Blue color for selected language text
+    fontWeight: '600',
+  },
+  checkIcon: {
+    marginLeft: 10,
+  },
+  // Close Button Styles
+  closeButton: {
     marginTop: 20,
     padding: 10,
     backgroundColor: '#007bff',
