@@ -1,69 +1,134 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // You may need to install this package
-
-const SettingItem = ({ icon, title }) => (
-  <TouchableOpacity style={styles.settingItem}>
-    <Icon name={icon} size={24} color="#000" style={styles.icon} />
-    <Text style={styles.settingText}>{title}</Text>
-    <Icon name="chevron-right" size={24} color="#000" style={styles.chevron} />
-  </TouchableOpacity>
-);
+import React, { useState } from 'react';
+import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import LanguageSelectionModal from '../../components/setings/LanguageSelectionModal';
+import ProfileEditModal from '../../components/setings/ProfileEditModal';
+import TermsModal from '../../components/setings/TermsModal';
+import LogoutModal from '../../components/setings/LogoutModal';
 
 const Settings = () => {
+  const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
+  const [isProfileModalVisible, setProfileModalVisible] = useState(false);
+  const [isTermsModalVisible, setTermsModalVisible] = useState(false);
+  const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
+
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [profile, setProfile] = useState({ name: 'John Doe', email: 'johndoe@example.com' });
+
+  const handleLanguageSelect = (languageCode) => {
+    setSelectedLanguage(languageCode);
+    setLanguageModalVisible(false);
+  };
+
+  const handleSaveProfile = (updatedProfile) => {
+    setProfile(updatedProfile);
+  };
+
+  const handleLogout = () => {
+    console.log('User logged out');
+    setLogoutModalVisible(false);
+  };
+
+  const SettingItem = ({ icon, title, onPress }) => (
+    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
+      <Icon name={icon} size={24} color="#000" style={styles.icon} />
+      <Text style={styles.settingText}>{title}</Text>
+      <Icon name="chevron-right" size={24} color="#000" style={styles.chevron} />
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Settings</Text>
-      </View>
-      <View style={styles.settingsContainer}>
-        <SettingItem icon="language" title="Language" />
-        <SettingItem icon="person" title="Profile" />
-        <SettingItem icon="description" title="Terms & Conditions" />
-        <SettingItem icon="logout" title="Log Out" />
-      </View>
+      <LanguageSelectionModal
+        visible={isLanguageModalVisible}
+        onClose={() => setLanguageModalVisible(false)}
+        onSelectLanguage={handleLanguageSelect}
+        selectedLanguage={selectedLanguage}
+      />
+      <ProfileEditModal
+        visible={isProfileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+        profile={profile}
+        onSaveProfile={handleSaveProfile}
+      />
+      <TermsModal
+        visible={isTermsModalVisible}
+        onClose={() => setTermsModalVisible(false)}
+      />
+      <LogoutModal
+        visible={isLogoutModalVisible}
+        onClose={() => setLogoutModalVisible(false)}
+        onConfirmLogout={handleLogout}
+      />
+
+      <SettingItem
+        icon="language"
+        title="Language"
+        onPress={() => setLanguageModalVisible(true)}
+      />
+      <SettingItem
+        icon="person"
+        title="Edit Profile"
+        onPress={() => setProfileModalVisible(true)}
+      />
+      <SettingItem
+        icon="info"
+        title="Terms & Conditions"
+        onPress={() => setTermsModalVisible(true)}
+      />
+      <SettingItem
+        icon="logout"
+        title="Logout"
+        onPress={() => setLogoutModalVisible(true)}
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  // Base Container Styles
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f4f4f4',
   },
   header: {
-    marginLeft:20,
-    alignItems: 'left',
+    marginLeft: 20,
     marginVertical: 20,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#333',
   },
   settingsContainer: {
-    backgroundColor: '#F0F8FF',
+    backgroundColor: '#fff',
     borderRadius: 10,
     margin: 15,
-    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     padding: 15,
-    marginVertical: 5,
-    borderRadius: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   icon: {
     marginRight: 15,
+    color: '#007bff',
   },
   settingText: {
     flex: 1,
     fontSize: 16,
+    color: '#333',
   },
   chevron: {
     opacity: 0.5,
+    color: '#999',
   },
 });
 
