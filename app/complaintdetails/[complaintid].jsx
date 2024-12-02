@@ -70,10 +70,11 @@ const ComplaintForm = () => {
     };
   
     // Convert images to Base64
+    //complaintData.images.push(`data:image/jpeg;base64,${base64Image}`);(when nedd type of image)
   try {
     for (const imageUri of images.filter(img => img)) { // Only process non-null images
       const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
-      complaintData.images.push(`data:image/jpeg;base64,${base64Image}`);
+      complaintData.images.push(base64Image);
     }
   } catch (error) {
     Alert.alert('Image Error', 'Failed to process images. Please try again.');
