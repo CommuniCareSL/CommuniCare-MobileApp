@@ -12,13 +12,7 @@ const Settings = () => {
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [profile, setProfile] = useState({ name: 'John Doe', email: 'johndoe@example.com' });
-
-  const handleLanguageSelect = (languageCode) => {
-    setSelectedLanguage(languageCode);
-    setLanguageModalVisible(false);
-  };
 
   const handleSaveProfile = (updatedProfile) => {
     setProfile(updatedProfile);
@@ -42,8 +36,6 @@ const Settings = () => {
       <LanguageSelectionModal
         visible={isLanguageModalVisible}
         onClose={() => setLanguageModalVisible(false)}
-        onSelectLanguage={handleLanguageSelect}
-        selectedLanguage={selectedLanguage}
       />
       <ProfileEditModal
         visible={isProfileModalVisible}
@@ -88,6 +80,7 @@ const Settings = () => {
 const styles = StyleSheet.create({
   // Base Container Styles
   container: {
+    marginTop: 40,
     flex: 1,
     backgroundColor: '#f4f4f4',
   },
