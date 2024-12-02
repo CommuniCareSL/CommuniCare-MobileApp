@@ -1,8 +1,10 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 const TabsLayout = () => {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={({ route }) => ({
@@ -38,31 +40,31 @@ const TabsLayout = () => {
       <Tabs.Screen
         name="home"
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: t('tabs.layout.Home'),
         }}
       />
       <Tabs.Screen
         name="services"
         options={{
-          tabBarLabel: 'Services',
+          tabBarLabel: t('tabs.layout.Services'),
         }}
       />
       <Tabs.Screen
         name="contact"
         options={{
-          tabBarLabel: 'Contact',
+          tabBarLabel: t('tabs.layout.Contact'),
         }}
       />
       <Tabs.Screen
         name="records"
         options={{
-          tabBarLabel: 'Records',
+          tabBarLabel: t('tabs.layout.Records'),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          tabBarLabel: 'Settings',
+          tabBarLabel: t('tabs.layout.Settings'),
         }}
       />
     </Tabs>

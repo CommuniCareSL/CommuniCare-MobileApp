@@ -4,10 +4,12 @@ import { Link, useRouter } from 'expo-router';
 
 import { useEffect, useState } from "react";
 import { getUserDetails } from "../../hooks/storage";
+import { useTranslation } from 'react-i18next';
 
 import categories from '../../data/complaintCategories';
 
 const Home = () => {
+  const { t } = useTranslation(); // Access the translation function
   const incidents = {
     reported: 1452,
     inProgress: 693,
@@ -43,7 +45,7 @@ const Home = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
           {/* <Text style={styles.greeting}>Hello Chinthana!</Text> */}
-          <Text style={styles.greeting}>Hello{fullName ? `, ${fullName}` : ""}!</Text>
+          <Text style={styles.greeting}>{t('tabs.home.welcome')}{fullName ? `, ${fullName}` : ""}!</Text>
           <Text style={styles.subHeader}>Easily Connect with Your Local Government Office</Text>
           <View style={styles.incidentsContainer}>
             <View style={styles.incidentBox}>
