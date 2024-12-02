@@ -19,6 +19,21 @@
       "Profile": "Edit Profile"
     
     }
+  },
+  "data": {
+    "complaint_categories": {
+      "road_hazards": "Road hazards",
+      "unsafe_trees": "Unsafe trees in roadside",
+      "street_lamp": "Street lamp malfunction",
+      "damages_to_drains": "Damages to the street drains",
+      "garbage_disposal": "Garbage disposal on roadside",
+      "mosquito_breeding": "Mosquito breeding grounds",
+      "public_toilets": "Issues related to public toilets",
+      "stray_animals": "Stray animals",
+      "unauthorized_constructions": "Unauthorized constructions",
+      "unauthorized_sellers": "Unauthorized street sellers",
+      "dangerous_walls": "Dangerous Walls or buildings",
+      "others": "Others"
+    }
   }
-  
 }

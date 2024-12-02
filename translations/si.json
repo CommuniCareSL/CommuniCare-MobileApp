@@ -11,7 +11,7 @@
       
     },
     "home": {
-      "welcome": "ආයුබෝවන්",
+      "welcome": "ආයුබෝවන්"
       
     },
     "settings": {
@@ -19,6 +19,21 @@
       "Profile": "වෙනස් කරන්න"
       
     }
-  }
-  
+  },
+  "data": {
+    "complaint_categories": {
+      "road_hazards": "මාර්ග අනතුරු",
+      "unsafe_trees": "අනතුරුදායක ගස්",
+      "street_lamp": "වීදිය ලාම්පු ක්‍රියානොකිරීම",
+      "damages_to_drains": "වතුර",
+      "garbage_disposal": "පාරේ කුණු",
+      "mosquito_breeding": "මදුරුවන් බෝවන ස්තාන",
+      "public_toilets": "පොදුවැසිකිලි ප්‍රශ්න",
+      "stray_animals": "පාරේ ගැවසෙන සතුන්",
+      "unauthorized_constructions": "අවසර නොමැති ගොඩනැගිලි",
+      "unauthorized_sellers": "අවසර නොමැති වෙලෙන්දන්",
+      "dangerous_walls": "අනතුරුදායක ගොඩනැගිලි",
+      "others": "වෙනත්"
+    }
+  }  
 }
