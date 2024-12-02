@@ -4,6 +4,10 @@ import { SplashScreen, Stack } from "expo-router";
 
 import { NavigationContainer } from '@react-navigation/native';
 
+// Import i18n setup and the I18nextProvider
+import { I18nextProvider } from "react-i18next";
+import i18n from "../hooks/i18n";
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -31,14 +35,16 @@ const RootLayout = () => {
   }
 
   return (
-    <NavigationContainer>
-      <Stack screenOptions={{headerShown: false}}>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-        <Stack.Screen name="complaintdetails/[complaintid]" options={{ headerShown: false }} />       
-      </Stack>
-    </NavigationContainer>
+    <I18nextProvider i18n={i18n}>
+      <NavigationContainer>
+        <Stack screenOptions={{headerShown: false}}>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="complaintdetails/[complaintid]" options={{ headerShown: false }} />       
+        </Stack>
+      </NavigationContainer>
+    </I18nextProvider>
   );
 };
 
