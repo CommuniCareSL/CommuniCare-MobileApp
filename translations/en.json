@@ -1,6 +1,24 @@
 {
-    "welcome": "Welcome",
-    "settings": "Settings",
-    "language": "Language",
-    "logout": "Logout"
+  "tabs": {
+    "layout": {
+      "Home": "Home",
+      "Services": "Services",
+      "Contact": "Contact",
+      "Records": "Records",      
+      "Settings": "Settings"
+    },
+    "contact": {
+      
+    },
+    "home": {
+      "welcome": "Welcome"
+      
+    },
+    "settings": {
+      "Language": "Language",
+      "Profile": "Edit Profile"
+    
+    }
   }
+  
+}

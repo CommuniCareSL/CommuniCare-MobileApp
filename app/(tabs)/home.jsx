@@ -45,7 +45,7 @@ const Home = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.header}>
           {/* <Text style={styles.greeting}>Hello Chinthana!</Text> */}
-          <Text style={styles.greeting}>{t('welcome')}{fullName ? `, ${fullName}` : ""}!</Text>
+          <Text style={styles.greeting}>{t('tabs.home.welcome')}{fullName ? `, ${fullName}` : ""}!</Text>
           <Text style={styles.subHeader}>Easily Connect with Your Local Government Office</Text>
           <View style={styles.incidentsContainer}>
             <View style={styles.incidentBox}>

@@ -1,6 +1,24 @@
 {
-    "welcome": "ආයුබෝවන්",
-    "settings": "සැකසුම්",
-    "language": "භාෂාව",
-    "logout": "පිටවීම"
+  "tabs": {
+    "layout": {
+      "Home": "ආරම්භය",
+      "Services": "සේවාවන්",
+      "Contact": "සම්බන්ධ",
+      "Records": "වාර්තා",      
+      "Settings": "සැකසුම්"
+    },
+    "contact": {
+      
+    },
+    "home": {
+      "welcome": "ආයුබෝවන්",
+      
+    },
+    "settings": {
+      "Language": "භාෂාව",
+      "Profile": "වෙනස් කරන්න"
+      
+    }
   }
+  
+}

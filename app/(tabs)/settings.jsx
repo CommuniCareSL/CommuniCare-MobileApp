@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import LanguageSelectionModal from '../../components/setings/LanguageSelectionModal';
 import ProfileEditModal from '../../components/setings/ProfileEditModal';
 import TermsModal from '../../components/setings/TermsModal';
 import LogoutModal from '../../components/setings/LogoutModal';
 
 const Settings = () => {
+  const { t } = useTranslation();
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
@@ -55,12 +57,12 @@ const Settings = () => {
 
       <SettingItem
         icon="language"
-        title="Language"
+        title={t('tabs.settings.Language')}
         onPress={() => setLanguageModalVisible(true)}
       />
       <SettingItem
         icon="person"
-        title="Edit Profile"
+        title={t('tabs.settings.Profile')}
         onPress={() => setProfileModalVisible(true)}
       />
       <SettingItem
