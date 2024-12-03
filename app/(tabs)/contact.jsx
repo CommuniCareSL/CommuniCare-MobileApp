@@ -6,10 +6,13 @@ import {
   TouchableOpacity, 
   Modal, 
   TextInput, 
-  ScrollView, 
+  Button,
+  ScrollView,
   FlatList 
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import * as MailComposer from 'expo-mail-composer';
+import { firstDropdownOptions, secondDropdownOptions } from '../../data/contactData';
 
 const Dropdown = ({ label, items, selectedValue, onSelect }) => {
   const { t } = useTranslation();
@@ -23,9 +26,9 @@ const Dropdown = ({ label, items, selectedValue, onSelect }) => {
         </Text>
       </TouchableOpacity>
       <Modal visible={visible} transparent animationType="fade">
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setVisible(false)}
         >
           <View style={styles.dropdownList}>
@@ -39,10 +42,10 @@ const Dropdown = ({ label, items, selectedValue, onSelect }) => {
                     setVisible(false);
                   }}
                 >
-                  <Text>{item}</Text>
+                  <Text>{item.name || item}</Text>
                 </TouchableOpacity>
               )}
-              keyExtractor={(item) => item}
+              keyExtractor={(item, index) => index.toString()}
             />
           </View>
         </TouchableOpacity>
@@ -52,104 +55,111 @@ const Dropdown = ({ label, items, selectedValue, onSelect }) => {
 };
 
 const ContactPage = () => {
-  const [selectedDistrict, setSelectedDistrict] = useState('');
-  const [selectedCouncil, setSelectedCouncil] = useState('');
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [name, setName] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [selectedCouncil, setSelectedCouncil] = useState(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);  // To show modal for email
+  const [emailBody, setEmailBody] = useState('');  // To store email body
   const { t } = useTranslation();
 
-  // Mock data - replace with your actual data
-  const districts = ['District A', 'District B', 'District C'];
-  const councils = {
-    'District A': ['Council A1', 'Council A2'],
-    'District B': ['Council B1', 'Council B2'],
-    'District C': ['Council C1', 'Council C2'],
-  };
+  const contactDetails = selectedCouncil
+    ? secondDropdownOptions[selectedDistrict?.name]?.find(
+        (council) => council.name === selectedCouncil.name
+      )
+    : null;
 
-  const contactInfo = {
-    address: '123 Main St, City, Country',
-    tel: '+1 234 567 8900',
-    email: 'contact@example.com',
+  // Send email function using expo-mail-composer
+  const sendEmail = async () => {
+    try {
+      const result = await MailComposer.composeAsync({
+        recipients: ['shensachin120@gmail.com'], // recipient email
+        subject: 'Contact Us Inquiry', // email subject
+        body: emailBody, // email body
+      });
+
+      if (result.status === 'sent') {
+        console.log('Email sent successfully!');
+        setIsModalVisible(false); // Close the modal after sending email
+        setEmailBody(''); // Clear the email body
+      } else {
+        console.log('Email sending failed.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
   };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{t('tabs.contact.contactus')}</Text>
 
+      {/* Dropdown for District */}
       <Dropdown
         label="Select District"
-        items={districts}
-        selectedValue={selectedDistrict}
+        items={firstDropdownOptions}
+        selectedValue={selectedDistrict?.name || ''}
         onSelect={(item) => {
           setSelectedDistrict(item);
-          setSelectedCouncil('');
+          setSelectedCouncil(null); // Reset council when district changes
         }}
       />
 
+      {/* Dropdown for Council */}
       <Dropdown
         label="Select Council"
-        items={selectedDistrict ? councils[selectedDistrict] : []}
-        selectedValue={selectedCouncil}
+        items={selectedDistrict ? secondDropdownOptions[selectedDistrict.name] || [] : []}
+        selectedValue={selectedCouncil?.name || ''}
         onSelect={setSelectedCouncil}
       />
 
-      <View style={styles.contactInfo}>
-        <Text style={styles.infoText}>{t('tabs.contact.Address:')} {contactInfo.address}</Text>
-        <Text style={styles.infoText}>{t('tabs.contact.Tel:')} {contactInfo.tel}</Text>
-        <Text style={styles.infoText}>{t('tabs.contact.Email:')} {contactInfo.email}</Text>
-      </View>
+      {/* Display Contact Info only after both District and Council are selected */}
+      {selectedDistrict && selectedCouncil && contactDetails && (
+        <View style={styles.contactInfo}>
+          <Text style={styles.infoText}>
+            {t('tabs.contact.Area:')} {selectedDistrict.name}
+          </Text>
+          <Text style={styles.infoText}>
+            {t('tabs.contact.Tel:')} {contactDetails.phone}
+          </Text>
+          <Text style={styles.infoText}>
+            {t('tabs.contact.Email:')} {contactDetails.email}
+          </Text>
+        </View>
+      )}
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setIsFormVisible(true)}
-      >
-        <Text style={styles.buttonText}>{t('tabs.contact.head')}</Text>
-      </TouchableOpacity>
+      {/* Hide "Contact Us" button until district and council are selected */}
+      {selectedDistrict && selectedCouncil && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setIsModalVisible(true)} // Show the modal when clicked
+        >
+          <Text style={styles.buttonText}>Contact Us</Text>
+        </TouchableOpacity>
+      )}
 
-      <Modal
-        visible={isFormVisible}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{t('tabs.contact.form')}</Text>
+      {/* Modal for composing email */}
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Write your message</Text>
             <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={name}
-              onChangeText={setName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Subject"
-              value={subject}
-              onChangeText={setSubject}
-            />
-            <TextInput
-              style={[styles.input, styles.messageInput]}
-              placeholder="Message"
-              value={message}
-              onChangeText={setMessage}
+              style={styles.messageInput}
               multiline
+              numberOfLines={4}
+              placeholder="Enter your message here"
+              value={emailBody}
+              onChangeText={setEmailBody}
             />
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                // Handle form submission here
-                setIsFormVisible(false);
-              }}
-            >
-              <Text style={styles.buttonText}>{t('tabs.contact.Submit')}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={() => setIsFormVisible(false)}
-            >
-              <Text style={styles.buttonText}>{t('tabs.contact.Cancel')}</Text>
-            </TouchableOpacity>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.sendButton} onPress={sendEmail}>
+                <Text style={styles.buttonText}>Send Email</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setIsModalVisible(false)} // Close modal on cancel
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -219,12 +229,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
@@ -236,19 +240,33 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
-  input: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-  },
   messageInput: {
-    height: 100,
+    height: 80,
     textAlignVertical: 'top',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+    padding: 10,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  sendButton: {
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 5,
+    flex: 1,
+    marginRight: 10,
+    alignItems: 'center',
   },
   cancelButton: {
     backgroundColor: '#FF3B30',
-    marginTop: 10,
+    padding: 15,
+    borderRadius: 5,
+    flex: 1,
+    alignItems: 'center',
   },
 });
 
