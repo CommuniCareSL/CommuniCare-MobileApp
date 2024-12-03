@@ -2,13 +2,16 @@ import React, { useState } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LanguageSelectionModal from '../../components/setings/LanguageSelectionModal';
+import { useRouter } from "expo-router";
 import ProfileEditModal from '../../components/setings/ProfileEditModal';
 import TermsModal from '../../components/setings/TermsModal';
 import LogoutModal from '../../components/setings/LogoutModal';
 
 const Settings = () => {
   const { t } = useTranslation();
+  const router = useRouter(); // Initialize the router
   const [isLanguageModalVisible, setLanguageModalVisible] = useState(false);
   const [isProfileModalVisible, setProfileModalVisible] = useState(false);
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
@@ -20,9 +23,21 @@ const Settings = () => {
     setProfile(updatedProfile);
   };
 
-  const handleLogout = () => {
-    console.log('User logged out');
-    setLogoutModalVisible(false);
+  // const handleLogout = () => {
+  //   console.log('User logged out');
+  //   setLogoutModalVisible(false);
+  // };
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
+      console.log('User logged out');
+      
+      // Navigate to the Login screen after logout
+      router.push("/log-in");
+      setLogoutModalVisible(false); // Close the modal
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   const SettingItem = ({ icon, title, onPress }) => (
