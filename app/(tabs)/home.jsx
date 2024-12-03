@@ -72,7 +72,7 @@ const Home = () => {
               <View style={styles.categoryContent}>
                 <Image source={category.icon} style={styles.categoryIcon} />
                 <Text style={styles.categoryTitle} numberOfLines={2} ellipsizeMode="tail">
-                {t(category.titleKey)}
+                {t(category.title)}
                 </Text>
               </View>
             </TouchableOpacity>
