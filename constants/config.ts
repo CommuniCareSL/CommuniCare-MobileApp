@@ -2,7 +2,7 @@
 
 // Define the base URL for your Spring Boot backend API
 
-const BASE_URL = 'http://192.168.8.176:8080/app/api'; 
+const BASE_URL = 'http://192.168.8.116:8080/app/api'; 
 
 
 // Export the base URL
