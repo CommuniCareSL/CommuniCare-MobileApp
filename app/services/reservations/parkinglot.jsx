@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as SecureStore from 'expo-secure-store';
+import { submitReservation } from '../../../services/reservationService'; // Adjust the path as per your folder structure
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
@@ -24,7 +26,24 @@ const validationSchema = Yup.object().shape({
 
 const ParkinglotReservation = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date()); // State to hold selected date
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [userId, setUserId] = useState(null);
+
+  // Fetch user ID from secure storage
+  useEffect(() => {
+    const fetchUserId = async () => {
+      try {
+        const storedUserDetails = await SecureStore.getItemAsync('userDetails');
+        if (storedUserDetails) {
+          const { userId } = JSON.parse(storedUserDetails);
+          setUserId(userId);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user ID:', error);
+      }
+    };
+    fetchUserId();
+  }, []);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || selectedDate;
@@ -37,7 +56,6 @@ const ParkinglotReservation = () => {
       <View style={styles.container}>
         <Text style={styles.title}>Parkinglot Reservation</Text>
 
-        {/* Form Section */}
         <Formik
           initialValues={{
             name: '',
@@ -49,8 +67,25 @@ const ParkinglotReservation = () => {
             agree: false,
           }}
           validationSchema={validationSchema}
-          onSubmit={(values) => {
-            console.log(values); // Handle form submission
+          onSubmit={async (values, { resetForm }) => {
+            const payload = {
+              ...values,
+              userId,  // User's ID
+              reservationId: 4,  // Reservation ID for playground (static value)
+              date: selectedDate.toISOString().split('T')[0],
+            };
+
+            // Log the payload to the console
+            console.log('Data sent to backend:', payload);
+
+            try {
+              await submitReservation(payload);
+              alert('Reservation submitted successfully');
+              resetForm();
+            } catch (error) {
+              console.error('Reservation submission failed:', error);
+              alert('Failed to submit reservation');
+            }
           }}
         >
           {({
@@ -70,9 +105,7 @@ const ParkinglotReservation = () => {
                 onBlur={handleBlur('name')}
                 value={values.name}
               />
-              {touched.name && errors.name && (
-                <Text style={styles.error}>{errors.name}</Text>
-              )}
+              {touched.name && errors.name && <Text style={styles.error}>{errors.name}</Text>}
 
               <TextInput
                 style={styles.input}
@@ -81,9 +114,7 @@ const ParkinglotReservation = () => {
                 onBlur={handleBlur('address')}
                 value={values.address}
               />
-              {touched.address && errors.address && (
-                <Text style={styles.error}>{errors.address}</Text>
-              )}
+              {touched.address && errors.address && <Text style={styles.error}>{errors.address}</Text>}
 
               <TextInput
                 style={styles.input}
@@ -92,9 +123,7 @@ const ParkinglotReservation = () => {
                 onBlur={handleBlur('idNumber')}
                 value={values.idNumber}
               />
-              {touched.idNumber && errors.idNumber && (
-                <Text style={styles.error}>{errors.idNumber}</Text>
-              )}
+              {touched.idNumber && errors.idNumber && <Text style={styles.error}>{errors.idNumber}</Text>}
 
               <TextInput
                 style={styles.input}
@@ -103,9 +132,7 @@ const ParkinglotReservation = () => {
                 onBlur={handleBlur('telephone')}
                 value={values.telephone}
               />
-              {touched.telephone && errors.telephone && (
-                <Text style={styles.error}>{errors.telephone}</Text>
-              )}
+              {touched.telephone && errors.telephone && <Text style={styles.error}>{errors.telephone}</Text>}
 
               <TextInput
                 style={styles.input}
@@ -114,11 +141,8 @@ const ParkinglotReservation = () => {
                 onBlur={handleBlur('event')}
                 value={values.event}
               />
-              {touched.event && errors.event && (
-                <Text style={styles.error}>{errors.event}</Text>
-              )}
+              {touched.event && errors.event && <Text style={styles.error}>{errors.event}</Text>}
 
-              {/* Date Picker */}
               <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => setShowDatePicker(true)}
@@ -138,9 +162,7 @@ const ParkinglotReservation = () => {
                   }}
                 />
               )}
-              {touched.date && errors.date && (
-                <Text style={styles.error}>{errors.date}</Text>
-              )}
+              {touched.date && errors.date && <Text style={styles.error}>{errors.date}</Text>}
 
               {/* Declaration in a box */}
               <View style={styles.declarationBox}>
@@ -150,7 +172,7 @@ const ParkinglotReservation = () => {
                 </Text>
               </View>
 
-              {/* Radio Button for Agreement */}
+              {/* Agreement Checkbox */}
               <TouchableOpacity
                 style={styles.radioContainer}
                 onPress={() => setFieldValue('agree', !values.agree)}
@@ -160,9 +182,7 @@ const ParkinglotReservation = () => {
                 </View>
                 <Text style={styles.radioText}>I Agree</Text>
               </TouchableOpacity>
-              {touched.agree && errors.agree && (
-                <Text style={styles.error}>{errors.agree}</Text>
-              )}
+              {touched.agree && errors.agree && <Text style={styles.error}>{errors.agree}</Text>}
 
               {/* Submit Button */}
               <TouchableOpacity
@@ -204,14 +224,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F8FF',
     borderRadius: 5,
     padding: 10,
-    marginBottom: 10,
-  },
-  picker: {
-    height: 100,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#F0F8FF',
-    borderRadius: 5,
     marginBottom: 10,
   },
   datePickerButton: {
@@ -257,8 +269,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    backgroundColor: '#F0F8FF',
     padding: 15,
+    backgroundColor: '#F0F8FF',
     marginVertical: 10,
   },
   declaration: {

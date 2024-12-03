@@ -9,8 +9,10 @@ import {
   ScrollView, 
   FlatList 
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 const Dropdown = ({ label, items, selectedValue, onSelect }) => {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(false);
 
   return (
@@ -56,6 +58,7 @@ const ContactPage = () => {
   const [name, setName] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const { t } = useTranslation();
 
   // Mock data - replace with your actual data
   const districts = ['District A', 'District B', 'District C'];
@@ -73,7 +76,7 @@ const ContactPage = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Contact Us</Text>
+      <Text style={styles.title}>{t('tabs.contact.contactus')}</Text>
 
       <Dropdown
         label="Select District"
@@ -93,16 +96,16 @@ const ContactPage = () => {
       />
 
       <View style={styles.contactInfo}>
-        <Text style={styles.infoText}>Address: {contactInfo.address}</Text>
-        <Text style={styles.infoText}>Tel: {contactInfo.tel}</Text>
-        <Text style={styles.infoText}>Email: {contactInfo.email}</Text>
+        <Text style={styles.infoText}>{t('tabs.contact.Address:')} {contactInfo.address}</Text>
+        <Text style={styles.infoText}>{t('tabs.contact.Tel:')} {contactInfo.tel}</Text>
+        <Text style={styles.infoText}>{t('tabs.contact.Email:')} {contactInfo.email}</Text>
       </View>
 
       <TouchableOpacity
         style={styles.button}
         onPress={() => setIsFormVisible(true)}
       >
-        <Text style={styles.buttonText}>Contact Us</Text>
+        <Text style={styles.buttonText}>{t('tabs.contact.head')}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -112,7 +115,7 @@ const ContactPage = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Contact Form</Text>
+            <Text style={styles.modalTitle}>{t('tabs.contact.form')}</Text>
             <TextInput
               style={styles.input}
               placeholder="Name"
@@ -139,13 +142,13 @@ const ContactPage = () => {
                 setIsFormVisible(false);
               }}
             >
-              <Text style={styles.buttonText}>Submit</Text>
+              <Text style={styles.buttonText}>{t('tabs.contact.Submit')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
               onPress={() => setIsFormVisible(false)}
             >
-              <Text style={styles.buttonText}>Cancel</Text>
+              <Text style={styles.buttonText}>{t('tabs.contact.Cancel')}</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -8,17 +8,58 @@
       "Settings": "Settings"
     },
     "contact": {
+      "contactus": "Contact Us",
+      "Address:" : "Address:",
+      "Tel:":"Tel:",
+      "head":"Contact Us",
+      "form": "Contact Form",
+      "Submit": "Submit",
+      "Cancel": "Cancel"
       
+      
+
     },
     "home": {
-      "welcome": "Welcome"
+      "welcome": "Welcome",
+      "easily" : "Easily Connect with Your Local Government Office",
+      "report" : "Reported",
+      "progress": "In Progress",
+      "Resolved": "Resolved"
       
     },
     "settings": {
       "Language": "Language",
-      "Profile": "Edit Profile"
+      "Profile": "Edit Profile",
+      "Terms":"Terms & Conditions",
+      "Logout" : "Logout"
     
-    }
+    },
+    "Records" : {
+      "Records" : "Records",
+      "Services": "Services",
+      "InProgress": "In Progress",
+      "Completed": "Completed",
+      "Pending": "Pending",
+      "Complaints": "Complaints",
+      "Received": "Received",
+      "InProgress1": "In Progress",
+      "Completed1": "Completed",
+      "Appointments": "Appointments",
+      "Scheduled": "Scheduled",
+      "Approved" : "Approved",
+      "Completed2" : "Completed"
+      
+    },
+    "Services": {
+      "online": "Online Services",
+      "easily" :"Easily access our services online from home by single touch.",
+      "Appointment": "Appointment Services",
+      "Book": "Book an appointment for services that need an in-person visit.",
+      "more" : "More info"
+
+
+      
+    
   },
   "data": {
     "complaint_categories": {
@@ -36,4 +77,4 @@
       "others": "Others"
     }
   }
-}
+}}
