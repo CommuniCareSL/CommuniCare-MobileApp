@@ -60,7 +60,8 @@
 
       
     
-  },
+  }
+},
   "data": {
     "complaint_categories": {
       "road_hazards": "Road hazards",
@@ -77,4 +78,4 @@
       "others": "Others"
     }
   }
-}}
+}
