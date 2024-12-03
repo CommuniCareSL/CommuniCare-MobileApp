@@ -29,6 +29,24 @@
       "Language": "භාෂාව",
       "Profile": "වෙනස් කරන්න"
       
+    },
+    "Records" : {
+      "Records" : "වාර්තා",
+      "Services": "සේවාවන්",
+      "InProgress": "ක්‍රියාත්මක වෙමින් පවතින",
+      "Completed": "සම්පූර්ණ කල ඇති",
+      "Pending": "ඉදිරියට නියමිත",
+      "Complaints": "පැමිණිලි",
+      "Received": "ලැබී ඇති",
+      "InProgress1": "ක්‍රියාත්මක වෙමින් පවතින",
+      "Completed1": "සම්පූර්ණ කල ඇති",
+      "Appointments": "කැඳවුම්",
+      "Scheduled": "කාලසටහන්ගත කර ඇත",
+      "Approved" : "අනුමත කළා",
+      "Completed2" : "සම්පූර්ණ කල ඇති"
+
+
+
     }
   },
   "data": {

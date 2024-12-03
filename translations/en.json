@@ -31,6 +31,25 @@
       "Language": "Language",
       "Profile": "Edit Profile"
     
+    },
+    "Records" : {
+      "Records" : "Records",
+      "Services": "Services",
+      "InProgress": "In Progress",
+      "Completed": "Completed",
+      "Pending": "Pending",
+      "Complaints": "Complaints",
+      "Received": "Received",
+      "InProgress1": "In Progress",
+      "Completed1": "Completed",
+      "Appointments": "Appointments",
+      "Scheduled": "Scheduled",
+      "Approved" : "Approved",
+      "Completed2" : "Completed"
+      
+
+
+
     }
   },
   "data": {
