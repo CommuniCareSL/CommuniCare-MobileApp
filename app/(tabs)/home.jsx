@@ -11,9 +11,9 @@ import categories from '../../data/complaintCategories';
 const Home = () => {
   const { t } = useTranslation(); // Access the translation function
   const incidents = {
-    reported: 1452,
-    inProgress: 693,
-    resolved: 759,
+    reported: 12,
+    inProgress: 13,
+    resolved: 79,
   };
 
   //Name of the user
