@@ -1,35 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams } from 'expo-router';
-import AppointmentService from '../../services/appointmentService';
-
-import { getUserDetails } from "../../hooks/storage";
 
 const AppointmentBookingPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [notes, setNotes] = useState('');
   const { serviceId, serviceTitle } = useLocalSearchParams();
-  const [userId, setUserId] = useState(null);
-
-  useEffect(() => {
-    // Fetch userId when the page loads
-    const fetchUserId = async () => {
-      try {
-        const userDetails = await getUserDetails();
-        if (userDetails) {
-          setUserId(userDetails.userId);
-        } else {
-          console.log("No user details found");
-        }
-      } catch (error) {
-        console.error("Error fetching user ID:", error);
-      }
-    };
-
-    fetchUserId();
-  }, []);
+  //console.log(serviceId, serviceTitle);
 
   // Generate time slots
   const generateTimeSlots = () => {
@@ -102,31 +81,14 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot(slot);
   };
 
-  // const handleBookAppointment = () => {
-  //   // Implement booking logic
-  //   console.log('Booking:', {
-  //     service: serviceTitle,
-  //     date: selectedDate,
-  //     timeSlot: selectedTimeSlot,
-  //     notes
-  //   });
-  // };
-  const handleBookAppointment = async () => {
-    try {
-      const bookingDetails = {
-        userId, 
-        serviceId, 
-        date: selectedDate,
-        timeSlot: selectedTimeSlot.time,
-        notes
-      };
-  
-      const response = await AppointmentService.bookAppointment(bookingDetails);
-      // Handle successful booking
-    } catch (error) {
-      // Handle booking error
-      console.error(error.message);
-    }
+  const handleBookAppointment = () => {
+    // Implement booking logic
+    console.log('Booking:', {
+      service: serviceTitle,
+      date: selectedDate,
+      timeSlot: selectedTimeSlot,
+      notes
+    });
   };
 
   return (
