@@ -4,18 +4,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-const ServiceCard = ({ title, description, icon, onPress }) => (
+const ServiceCard = ({ title, description, icon, onPress }) => {
+  const { t } = useTranslation();
+  return(
   <TouchableOpacity style={styles.card} onPress={onPress}>
     <View style={styles.cardContent}>
       <View>
         <Text style={styles.cardTitle}>{title}</Text>
         <Text style={styles.cardDescription}>{description}</Text>
-        <Text style={styles.moreInfo}>More info</Text>
+        <Text style={styles.moreInfo}>{t('tabs.Services.more')}</Text> 
       </View>
       <Ionicons name={icon} size={40} color="#4A90E2" marginRight={200}/>
     </View>
   </TouchableOpacity>
 );
+};
 
 const Services = () => {
   const router = useRouter();
