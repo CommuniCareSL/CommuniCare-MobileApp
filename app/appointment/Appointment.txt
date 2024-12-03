@@ -1,17 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useLocalSearchParams, useRouter } from 'expo-router';import { getUserDetails } from "../../hooks/storage";
-import AppointmentService from '../../services/AppointmentService'; // Update path as needed
+import { useLocalSearchParams } from 'expo-router';
+import { getUserDetails } from "../../hooks/storage";
 
 const AppointmentBookingPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [notes, setNotes] = useState('');
-  const [bookedSlots, setBookedSlots] = useState([]);
   const { serviceId, serviceTitle } = useLocalSearchParams();
   const [userId, setUserId] = useState(null);
-  const router = useRouter();
 
   useEffect(() => {
     // Fetch userId when the page loads
@@ -31,26 +29,6 @@ const AppointmentBookingPage = () => {
     fetchUserId();
   }, []);
 
-  // Check availability when a date is selected
-  useEffect(() => {
-    const checkAvailability = async () => {
-      if (selectedDate && serviceId) {
-        try {
-          const slots = await AppointmentService.checkTimeSlotAvailability(
-            serviceId, 
-            selectedDate
-          );
-          setBookedSlots(slots);
-        } catch (error) {
-          console.error('Failed to check availability:', error);
-          Alert.alert('Error', 'Could not check time slot availability');
-        }
-      }
-    };
-
-    checkAvailability();
-  }, [selectedDate, serviceId]);
-
   // Generate time slots in 20-minute intervals
   const generateTimeSlots = useMemo(() => {
     const slots = [];
@@ -67,20 +45,14 @@ const AppointmentBookingPage = () => {
       const period = hours >= 12 ? 'PM' : 'AM';
       const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
 
-      const slotTime = `${displayHours}:${formattedMinutes} ${period}`;
-
-      // Check if slot is already booked
-      const isBooked = bookedSlots.includes(time);
-
       slots.push({
-        time: slotTime,
-        value: time,
-        isBooked: isBooked
+        time: `${displayHours}:${formattedMinutes} ${period}`,
+        value: time
       });
     }
 
     return slots;
-  }, [bookedSlots]);
+  }, []);
 
   // Disable dates before a specific future date
   const markedDates = useMemo(() => {
@@ -91,32 +63,20 @@ const AppointmentBookingPage = () => {
     
     const disabledDates = {};
     
-    // Function to check if a date is a weekend (Saturday or Sunday)
-    const isWeekend = (date) => {
-      const day = date.getDay();
-      return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
-    };
-    
-    // Generate disabled dates
-    for (let year = today.getFullYear() - 1; year <= currentYear + 1; year++) {
-      for (let month = 0; month <= 11; month++) {
+    // Disable previous months and dates up to current month
+    for (let year = today.getFullYear() - 1; year <= currentYear; year++) {
+      const startMonth = year === currentYear ? 0 : currentMonth;
+      const endMonth = year === currentYear ? currentMonth : 11;
+      
+      for (let month = startMonth; month <= endMonth; month++) {
         // Get the last day of the month
         const lastDay = new Date(year, month + 1, 0).getDate();
         
         for (let day = 1; day <= lastDay; day++) {
-          const currentDate = new Date(year, month, day);
-          
-          // Block conditions:
-          // 1. Weekend days
-          // 2. Dates before current date
-          const shouldDisable = 
-            isWeekend(currentDate) || 
-            (year < today.getFullYear() || 
-             (year === today.getFullYear() && 
-              (month < today.getMonth() || 
-               (month === today.getMonth() && day < today.getDate() + 2))));
-          
-          if (shouldDisable) {
+          // Condition to block dates
+          if (year < currentYear || 
+              month < currentMonth || 
+              (month === currentMonth && day <= currentDate + 1)) {
             const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
             disabledDates[dateString] = { 
               disabled: true, 
@@ -128,7 +88,7 @@ const AppointmentBookingPage = () => {
         }
       }
     }
-  
+
     // Highlight selected date
     if (selectedDate) {
       disabledDates[selectedDate] = { 
@@ -137,7 +97,7 @@ const AppointmentBookingPage = () => {
         selectedColor: '#007BFF'
       };
     }
-  
+
     return disabledDates;
   }, [selectedDate]);
 
@@ -150,87 +110,15 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot(slot);
   };
 
-  // const handleBookAppointment = () => {
-  //   // Implement booking logic
-  //   console.log('Booking:', {
-  //     service: serviceTitle,
-  //     date: selectedDate,
-  //     timeSlot: selectedTimeSlot,
-  //     notes
-  //   });
-  // };
-
-  const handleBookAppointment = async () => {
-    if (!userId || !serviceId || !selectedDate || !selectedTimeSlot) {
-      Alert.alert('Error', 'Please complete all booking details');
-      return;
-    }
-
-    try {
-      const bookingData = {
-        userId,
-        serviceId,
-        date: selectedDate,
-        timeSlot: selectedTimeSlot.value,
-        notes: notes || ''
-      };
-
-      const response = await AppointmentService.bookAppointment(bookingData);
-      
-      Alert.alert('Success', 'Appointment booked successfully!', [
-        {
-          text: 'OK', 
-          onPress: () => router.push('/appointments')
-        }
-      ]);
-    } catch (error) {
-      console.error('Booking failed:', error);
-      Alert.alert('Error', 'Failed to book appointment. Please try again.');
-    }
+  const handleBookAppointment = () => {
+    // Implement booking logic
+    console.log('Booking:', {
+      service: serviceTitle,
+      date: selectedDate,
+      timeSlot: selectedTimeSlot,
+      notes
+    });
   };
-
-  // Modify time slot rendering to show booked status
-  const renderTimeSlots = () => {
-    const screenWidth = Dimensions.get('window').width;
-    const slotWidth = screenWidth < 375 ? 100 : 120;
-
-    return generateTimeSlots.map((slot) => (
-      <TouchableOpacity
-        key={slot.time}
-        style={{ 
-          width: slotWidth, 
-          marginBottom: 8 
-        }}
-        className={`
-          p-2 rounded-lg border
-          ${slot.isBooked 
-            ? 'bg-gray-300 border-gray-300' // Booked slots are grayed out
-            : (selectedTimeSlot?.time === slot.time 
-              ? 'bg-blue-600 border-blue-600' 
-              : 'border-blue-300 bg-white')
-        }`}
-        disabled={slot.isBooked}
-        onPress={() => !slot.isBooked && handleTimeSlotSelect(slot)}
-      >
-        <Text 
-          className={`
-            text-center
-            ${slot.isBooked 
-              ? 'text-gray-500' 
-              : (selectedTimeSlot?.time === slot.time 
-                ? 'text-white' 
-                : 'text-blue-600')
-            }
-          `}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-        >
-          {slot.time} {slot.isBooked ? '(Booked)' : ''}
-        </Text>
-      </TouchableOpacity>
-    ));
-  };
-
 
   // Responsive layout
   const screenWidth = Dimensions.get('window').width;
@@ -247,7 +135,7 @@ const AppointmentBookingPage = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Service Name */}
-        <Text className="text-xl font-medium text-blue-600 mb-2 mt-8">{serviceTitle}</Text>
+        <Text className="text-2xl font-bold text-blue-600 mb-4 mt-8">{serviceTitle}</Text>
 
         {/* Calendar */}
         <View className="mb-4">
@@ -273,8 +161,8 @@ const AppointmentBookingPage = () => {
                 justifyContent: 'flex-start',
                 gap: 8 
               }}
-            > {renderTimeSlots()}
-              {/* {generateTimeSlots.map((slot) => (
+            >
+              {generateTimeSlots.map((slot) => (
                 <TouchableOpacity
                   key={slot.time}
                   style={{ 
@@ -302,7 +190,7 @@ const AppointmentBookingPage = () => {
                     {slot.time}
                   </Text>
                 </TouchableOpacity>
-              ))} */}
+              ))}
             </View>
           </View>
         )}
