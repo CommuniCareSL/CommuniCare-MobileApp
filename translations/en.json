@@ -11,7 +11,11 @@
       "contactus": "Contact Us",
       "Address:" : "Address:",
       "Tel:":"Tel:",
-      "head":"Contact Form"
+      "head":"Contact Us",
+      "form": "Contact Form",
+      "Submit": "Submit",
+      "Cancel": "Cancel"
+      
       
 
     },
