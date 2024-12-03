@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 const ServiceCard = ({ title, description, icon, onPress }) => (
   <TouchableOpacity style={styles.card} onPress={onPress}>
@@ -18,6 +19,7 @@ const ServiceCard = ({ title, description, icon, onPress }) => (
 
 const Services = () => {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,15 +31,15 @@ const Services = () => {
         <Text style={styles.logoText}>COMMUNI CARE</Text>
         
         <ServiceCard 
-          title="Online Services" 
-          description="Easily access our services online from home by single touch."
+          title={t('tabs.Services.online')} 
+          description={t('tabs.Services.easily')} 
           icon="people-circle-outline"
           onPress={() => router.push('/services/online_services')}
         />
         
         <ServiceCard 
-          title="Appointment Services" 
-          description="Book an appointment for services that need an in-person visit."
+          title={t('tabs.Services.Appointment')}  
+          description={t('tabs.Services.Book')} 
           icon="calendar-outline"
           onPress={() => router.push('/services/appointment_services')}
         />
