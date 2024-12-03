@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   // Base Container Styles
   container: {
     marginTop: 40,
+    marginHorizontal: 10,
     flex: 1,
     backgroundColor: '#f4f4f4',
   },
