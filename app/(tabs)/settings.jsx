@@ -67,12 +67,12 @@ const Settings = () => {
       />
       <SettingItem
         icon="info"
-        title="Terms & Conditions"
+        title={t('tabs.settings.Terms')}
         onPress={() => setTermsModalVisible(true)}
       />
       <SettingItem
         icon="logout"
-        title="Logout"
+        title={t('tabs.settings.Logout')}
         onPress={() => setLogoutModalVisible(true)}
       />
     </SafeAreaView>

@@ -27,7 +27,9 @@
     },
     "settings": {
       "Language": "භාෂාව",
-      "Profile": "වෙනස් කරන්න"
+      "Profile": "වෙනස් කරන්න",
+      "Terms":"නියම සහ කොන්දේසි",
+      "Logout" : "පිටවීම"
       
     },
     "Records" : {

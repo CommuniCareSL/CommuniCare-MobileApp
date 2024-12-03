@@ -29,7 +29,9 @@
     },
     "settings": {
       "Language": "Language",
-      "Profile": "Edit Profile"
+      "Profile": "Edit Profile",
+      "Terms":"Terms & Conditions",
+      "Logout" : "Logout"
     
     },
     "Records" : {
