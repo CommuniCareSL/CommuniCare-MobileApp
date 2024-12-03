@@ -11,7 +11,11 @@
       
     },
     "home": {
-      "welcome": "ආයුබෝවන්"
+      "welcome": "ආයුබෝවන්",
+      "easily" : "ඔබේ පළාත් පාලන කාර්යාලය සමඟ පහසුවෙන් සම්බන්ධ වන්න",
+      "report" : "වාර්තා කර ඇත", 
+      "progress": "සකස් වෙමින් පවතී",
+      "Resolved": "විසඳා ඇත"
       
     },
     "settings": {
@@ -27,7 +31,7 @@
       "street_lamp": "වීදිය ලාම්පු ක්‍රියානොකිරීම",
       "damages_to_drains": "වතුර",
       "garbage_disposal": "පාරේ කුණු",
-      "mosquito_breeding": "මදුරුවන් බෝවන ස්තාන",
+      "mosquito_breeding": "මදුරුවන් බෝවන ස්ථාන",
       "public_toilets": "පොදුවැසිකිලි ප්‍රශ්න",
       "stray_animals": "පාරේ ගැවසෙන සතුන්",
       "unauthorized_constructions": "අවසර නොමැති ගොඩනැගිලි",

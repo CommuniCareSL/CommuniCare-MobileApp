@@ -8,10 +8,19 @@
       "Settings": "Settings"
     },
     "contact": {
+      "contactus": "Contact Us",
+      "Address:" : "Address:",
+      "Tel:":"Tel:",
+      "head":"Contact Form"
       
+
     },
     "home": {
-      "welcome": "Welcome"
+      "welcome": "Welcome",
+      "easily" : "Easily Connect with Your Local Government Office",
+      "report" : "Reported",
+      "progress": "In Progress",
+      "Resolved": "Resolved"
       
     },
     "settings": {

@@ -46,19 +46,19 @@ const Home = () => {
         <View style={styles.header}>
           {/* <Text style={styles.greeting}>Hello Chinthana!</Text> */}
           <Text style={styles.greeting}>{t('tabs.home.welcome')}{fullName ? `, ${fullName}` : ""}!</Text>
-          <Text style={styles.subHeader}>Easily Connect with Your Local Government Office</Text>
+          <Text style={styles.subHeader}>{t('tabs.home.easily')}</Text>
           <View style={styles.incidentsContainer}>
             <View style={styles.incidentBox}>
               <Text style={styles.incidentNumber}>{incidents.reported}</Text>
-              <Text style={styles.incidentText}>Reported</Text>
+              <Text style={styles.incidentText}>{t('tabs.home.report')}</Text>
             </View>
             <View style={styles.incidentBox}>
               <Text style={styles.incidentNumber}>{incidents.inProgress}</Text>
-              <Text style={styles.incidentText}>In Progress</Text>
+              <Text style={styles.incidentText}>{t('tabs.home.progress')}</Text>
             </View>
             <View style={styles.incidentBox}>
               <Text style={styles.incidentNumber}>{incidents.resolved}</Text>
-              <Text style={styles.incidentText}>Resolved</Text>
+              <Text style={styles.incidentText}>{t("tabs.home.Resolved")}</Text>
             </View>
           </View>
         </View>
