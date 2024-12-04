@@ -14,7 +14,15 @@ const Settings = () => {
   const [isTermsModalVisible, setTermsModalVisible] = useState(false);
   const [isLogoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const [profile, setProfile] = useState({ name: 'John Doe', email: 'johndoe@example.com' });
+  // Updated profile with additional fields
+  const [profile, setProfile] = useState({
+    fullName: 'Johnathan Doe',
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    phoneNumber: '+1234567890',
+    district: 'Colombo',
+    pradeshiyaSabha: 'Colombo City Sabha',
+  });
 
   const handleSaveProfile = (updatedProfile) => {
     setProfile(updatedProfile);
@@ -80,30 +88,10 @@ const Settings = () => {
 };
 
 const styles = StyleSheet.create({
-  // Base Container Styles
   container: {
     marginTop: 40,
     flex: 1,
     backgroundColor: '#f4f4f4',
-  },
-  header: {
-    marginLeft: 20,
-    marginVertical: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  settingsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    margin: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   settingItem: {
     flexDirection: 'row',

@@ -1,141 +1,97 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router'; // Ensure expo-router is installed and configured
 
 const Records = () => {
-  const [recordCounts, setRecordCounts] = useState({
-    services: {
-      inProgress: 8,
-      completed: 3,
-      pending: 5
-    },
-    complaints: {
-      received: 10,
-      inProgress: 5,
-      completed: 15
-    },
-    appointments: {
-      scheduled: 6,
-      approved: 2,
-      completed: 4
-    }
+  const router = useRouter(); // Access the router instance
+  const [records] = useState({
+    complaints: [
+      { complaintType: 'Noise Pollution', sabhaName: 'City Sabha', status: 'In Progress' },
+      { complaintType: 'Road Damage', sabhaName: 'Suburban Sabha', status: 'Completed' },
+      { complaintType: 'Water Leakage', sabhaName: 'Urban Sabha', status: 'Pending' }
+    ],
+    reservations: [
+      { reservationTypeName: 'Playground', date: '2023-11-25', status: 'Approved' },
+      { reservationTypeName: 'Community Hall', date: '2023-11-30', status: 'Pending' },
+      { reservationTypeName: 'Sports Facility', date: '2023-12-02', status: 'Rejected' }
+    ],
+    appointments: [
+      { serviceName: 'Health Checkup', date: '2023-12-01', time: '10:30 AM', status: 'Scheduled' },
+      { serviceName: 'Permit Renewal', date: '2023-12-03', time: '2:00 PM', status: 'Completed' },
+      { serviceName: 'Consultation', date: '2023-12-05', time: '1:00 PM', status: 'Pending' }
+    ]
   });
 
-  const RecordBox = ({ title, items, className }) => (
-    <View className={`bg-blue-50 rounded-xl p-3 mb-4 shadow-md ${className}`}>
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-xl font-bold text-blue-800">{title}</Text>
-      </View>
-      <View className="flex-row flex-wrap justify-between">
-        {items.map((item, index) => (
+  const sortRecords = (data) => {
+    return data.sort((a, b) => {
+      if (a.status === 'Pending') return -1;
+      if (b.status === 'Pending') return 1;
+      return 0;
+    });
+  };
+
+  const DetailSection = ({ title, data, fields }) => {
+    const sortedData = sortRecords(data);
+    return (
+      <View className="border border-blue-200 rounded-lg p-4 mb-4 shadow-sm bg-white">
+        <Text className="text-xl font-bold text-blue-800 mb-3">{title}</Text>
+        {sortedData.map((item, index) => (
           <TouchableOpacity 
             key={index} 
-            className="items-center w-[48%] mb-2"
-            onPress={() => {/* Navigation or Detail View */}}
+            className="flex-row justify-between items-center mb-2 border-b border-gray-200 pb-2"
+            onPress={() => router.push('/services/reservations/status')} // Dynamic navigation
           >
-            <Ionicons 
-              name={item.icon} 
-              size={22} 
-              color={item.iconColor || "#4A90E2"} 
-            />
-            <Text className="text-xs font-semibold text-gray-800 mt-1 text-center">
-              {item.title}
-            </Text>
-            <Text className="text-xl font-bold text-blue-600">
-              {item.count}
-            </Text>
+            <View>
+              {fields.map((field, idx) => (
+                <Text key={idx} className="text-sm text-gray-700">
+                  <Text className="font-semibold">{field.label}: </Text>
+                  {item[field.key]}
+                </Text>
+              ))}
+            </View>
+            <Text className="text-sm font-bold text-blue-600">{item.status}</Text>
           </TouchableOpacity>
         ))}
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="px-4 py-3 bg-white flex-row items-center justify-center">
-        <Text className="text-black text-xl font-bold">Records</Text>
-      </View>
-      <ScrollView 
-        contentContainerStyle="px-4 pt-4"
-        showsVerticalScrollIndicator={false}
-      >
-        <RecordBox
-          title="Services"
-          items={[
-            { 
-              title: "In Progress", 
-              count: recordCounts.services.inProgress, 
-              icon: "construct-outline",
-              iconColor: "#FFA500"
-            },
-            { 
-              title: "Completed", 
-              count: recordCounts.services.completed, 
-              icon: "checkmark-done-circle",
-              iconColor: "#2E8B57"
-            },
-            { 
-              title: "Pending", 
-              count: recordCounts.services.pending, 
-              icon: "time-outline",
-              iconColor: "#1E90FF"
-            }
-          ]}
-          className="mb-4"
-        />
-        
-        <RecordBox
-          title="Complaints"
-          items={[
-            { 
-              title: "Received", 
-              count: recordCounts.complaints.received, 
-              icon: "document-text-outline",
-              iconColor: "#FFA500"
-            },
-            { 
-              title: "In Progress", 
-              count: recordCounts.complaints.inProgress, 
-              icon: "time-outline",
-              iconColor: "#1E90FF"
-            },
-            { 
-              title: "Completed", 
-              count: recordCounts.complaints.completed, 
-              icon: "checkmark-circle",
-              iconColor: "#2E8B57"
-            }
-          ]}
-          className="mb-4"
-        />
-        
-        <RecordBox
-          title="Appointments"
-          items={[
-            { 
-              title: "Scheduled", 
-              count: recordCounts.appointments.scheduled, 
-              icon: "calendar",
-              iconColor: "#FFA500"
-            },
-            { 
-              title: "Approved", 
-              count: recordCounts.appointments.approved, 
-              icon: "checkmark-circle-outline",
-              iconColor: "#1E90FF"
-            },
-            { 
-              title: "Completed", 
-              count: recordCounts.appointments.completed, 
-              icon: "flag",
-              iconColor: "#2E8B57"
-            }
-          ]}
-        />
+      <ScrollView contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator={false}>
+        <View className="border border-gray-300 rounded-lg shadow-md p-4">
+          <DetailSection
+            title="Complaints"
+            data={records.complaints}
+            fields={[
+              { label: 'Type', key: 'complaintType' },
+              { label: 'Sabha Name', key: 'sabhaName' }
+            ]}
+          />
+          <DetailSection
+            title="Reservations"
+            data={records.reservations}
+            fields={[
+              { label: 'Reservation Type', key: 'reservationTypeName' },
+              { label: 'Date', key: 'date' }
+            ]}
+          />
+          <DetailSection
+            title="Appointments"
+            data={records.appointments}
+            fields={[
+              { label: 'Service Name', key: 'serviceName' },
+              { label: 'Date', key: 'date' },
+              { label: 'Time', key: 'time' }
+            ]}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
 
 export default Records;
+
+
