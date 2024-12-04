@@ -4,13 +4,14 @@ export const reservationServices = [
       title: "Approval of building plans", 
       description: "",
       details: {
-        processingTime: '7-14 days',
+        processingTime: '14 -21 days',
         requiredDocuments: [
           'Architectural plans',
           'Land ownership documents',
-          'Site plan'
+          'National ID card',
+
         ],
-        fees: 'LKR 5,000 - 10,000',
+        fees: 'LKR 750.00',
         additionalInfo: 'Plans must comply with local building regulations'
       },
       onPress: () => {} 
@@ -20,13 +21,14 @@ export const reservationServices = [
       title: "Approving land subdivision and amalgamation development plans", 
       description: "", 
       details: {
-        processingTime: '14-30 days',
+        processingTime: '14-21 days',
         requiredDocuments: [
-          'Subdivision layout',
+          'Request letter',
           'Land survey report',
-          'Ownership certificates'
+          'Ownership certificates',
+          'A copy of National Id Card'
         ],
-        fees: 'LKR 15,000 - 25,000',
+        fees: 'LKR 750.00 ',
         additionalInfo: 'Must follow local urban planning guidelines'
       },
       onPress: () => {} 
@@ -36,14 +38,14 @@ export const reservationServices = [
       title: "Issuance of Certificate of Conformity", 
       description: "", 
       details: {
-        processingTime: '5-10 days',
+        processingTime: '14-20 days',
         requiredDocuments: [
           'Completed application form',
-          'Proof of compliance',
-          'Site inspection report'
+          'Request letter',
+          'Copy of building plan'
         ],
-        fees: 'LKR 3,000 - 7,000',
-        additionalInfo: 'Required for certain development projects'
+        fees: 'LKR 2,000.00',
+        additionalInfo: 'Proof of compliance'
       },
       onPress: () => {} 
     },
@@ -52,13 +54,14 @@ export const reservationServices = [
       title: "Obtaining a trade license", 
       description: "", 
       details: {
-        processingTime: '7-14 days',
+        processingTime: '7-21 days',
         requiredDocuments: [
+          'Completed application form',
           'Business registration',
           'Tax identification number',
-          'Proof of business location'
+          
         ],
-        fees: 'LKR 5,000 - 15,000',
+        fees: 'LKR 3,000.00 ',
         additionalInfo: 'Varies based on business type and size'
       },
       onPress: () => {} 
@@ -68,14 +71,15 @@ export const reservationServices = [
       title: "Obtaining an Environmental Compliance Certificate", 
       description: "", 
       details: {
-        processingTime: '21-45 days',
+        processingTime: '14-24 days',
         requiredDocuments: [
           'Environmental impact assessment',
           'Project proposal',
-          'Site environmental survey'
+          'Site environmental survey',
+          'Trade license'
         ],
-        fees: 'LKR 20,000 - 50,000',
-        additionalInfo: 'Comprehensive review required for environmental protection'
+        fees: 'LKR 3100.00',
+        additionalInfo: 'Road map from the nearest city to reach the industrial site'
       },
       onPress: () => {} 
     }
