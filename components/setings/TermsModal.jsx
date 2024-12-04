@@ -12,27 +12,50 @@ const TermsModal = ({ visible, onClose }) => {
       <View style={styles.modalContainer}>
         <View style={styles.termsModalContent}>
           <Text style={styles.modalTitle}>Terms & Conditions</Text>
-          <ScrollView style={styles.termsScrollView}>
-            <Text style={styles.termsText}>
-              {/* Terms content */}
-              1. Acceptance of Terms
-              These terms and conditions govern your use of our mobile application. By accessing or using the app, you agree to be bound by these terms.
+          <View style={styles.contentContainer}>
+            <ScrollView style={styles.termsScrollView}>
+              <Text style={[styles.termsText, { fontWeight: 'bold' }]}>
+                1. Acceptance of Terms
+              </Text>
+              <Text style={styles.termsText}>
+                By using this app, you agree to these Terms & our Privacy Policy. If you disagree, please stop using the app.
+              </Text>
 
-              2. User Responsibilities
-              - You must provide accurate and current information
-              - You are responsible for maintaining the confidentiality of your account
-              - You agree to use the app for lawful purposes only
+              <Text style={[styles.termsText, { fontWeight: 'bold' }]}>
+                2. User Responsibilities
+              </Text>
+              <Text style={styles.termsText}>
+                When using the app, you agree to:{"\n"}
+                - Provide accurate and truthful information during registration or form submissions.{"\n"}
+                - Use the app for lawful purposes only.{"\n"}
+                - Avoid impersonating another individual or entity.{"\n"}
+                - Keep your login credentials secure and confidential.
+              </Text>
 
-              3. Privacy
-              We are committed to protecting your privacy. Please review our Privacy Policy for details on how we collect, use, and protect your personal information.
+              <Text style={[styles.termsText, { fontWeight: 'bold' }]}>
+                3. Privacy
+              </Text>
+              <Text style={styles.termsText}>
+                Your data is used only to provide services and is kept secure. We don’t share it without your consent, except as required by law.
+              </Text>
 
-              4. Limitation of Liability
-              Our app is provided "as is" without any warranties. We shall not be liable for any direct, indirect, incidental, or consequential damages arising from your use of the app.
+              <Text style={[styles.termsText, { fontWeight: 'bold' }]}>
+                4. Limitation of Liability
+              </Text>
+              <Text style={styles.termsText}>
+                - The app is provided "as is" without any warranties.{"\n"}
+                - We are not liable for any direct, indirect, incidental, or consequential damages arising from your use of the app.
+              </Text>
 
-              5. Modifications
-              We reserve the right to modify these terms at any time. Continued use of the app after changes constitutes acceptance of the new terms.
-            </Text>
-          </ScrollView>
+              <Text style={[styles.termsText, { fontWeight: 'bold' }]}>
+                5. Modifications
+              </Text>
+              <Text style={styles.termsText}>
+                - We reserve the right to modify these terms at any time.{"\n"}
+                - Continued use of the app after changes implies acceptance of the new terms.
+              </Text>
+            </ScrollView>
+          </View>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
@@ -50,18 +73,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  modalContent: {
-    width: '85%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   termsModalContent: {
     width: '90%',
     height: '80%',
@@ -77,27 +88,31 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#333',
   },
-  // Terms and Conditions Styles
+  // Content Container
+  contentContainer: {
+    flex: 1,
+  },
   termsScrollView: {
-    maxHeight: 400,
+    flex: 1,
     width: '100%',
   },
   termsText: {
     fontSize: 14,
     lineHeight: 22,
     color: '#333',
+    marginBottom: 10,
   },
-   // Button Styles
-   closeButton: {
-    marginTop: 20,
+  // Button Styles
+  closeButton: {
     padding: 10,
     backgroundColor: '#007bff',
     borderRadius: 5,
     width: '100%',
     alignItems: 'center',
+    marginTop: 10,
   },
   closeButtonText: {
     color: 'white',
