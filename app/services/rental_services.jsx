@@ -56,11 +56,11 @@ const Services = () => {
   // ];
 
   const rentalServices = [
-    { title: "Concrete Mixer Rental (23)", description: "Concrete Mixer Rental", onPress: () => {/* handle navigation */} },
-    { title: "rent the excavator (23)", description: "rent the excavator", onPress: () => {/* handle navigation */} },
-    { title: "Concrete Quality Test Mold Rental (24)", description: "Concrete Quality Testing Mold Rental", onPress: () => {/* handle navigation */} },
-    { title: "Flagpole Rental (25)", description: "Flag Pole Rental", onPress: () => {/* handle navigation */} },
-    { title: "Rollo Compressore Rental (26)", description: "Rental of Stone Rolls", onPress: () => {/* handle navigation */} },
+    { title: "Concrete Mixer Rental ", description: "Concrete Mixer Rental", onPress: () => router.push('services/reservations/rental') },
+    { title: "rent the excavator ", description: "rent the excavator", onPress: () => router.push('services/reservations/rental') },
+    { title: "Concrete Quality Test Mold Rental", description: "Concrete Quality Testing Mold Rental", onPress: () => router.push('services/reservations/rental') },
+    { title: "Flagpole Rental ", description: "Flag Pole Rental", onPress: () => router.push('services/reservations/rental') },
+    { title: "Rollo Compressore Rental", description: "Rental of Stone Rolls", onPress: () => router.push('services/reservations/rental') },
   ];
 
   return (

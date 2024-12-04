@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 
 const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
   const [editedProfile, setEditedProfile] = useState(profile);
+
+  // Update editedProfile when profile prop changes
+  useEffect(() => {
+    setEditedProfile(profile);
+  }, [profile]);
 
   const handleSave = () => {
     onSaveProfile(editedProfile);
@@ -19,12 +24,24 @@ const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Profile</Text>
+          
+          {/* Full Name Input */}
           <TextInput
             style={styles.profileInput}
             placeholder="Full Name"
+            value={editedProfile.fullName}
+            onChangeText={(text) => setEditedProfile({ ...editedProfile, fullName: text })}
+          />
+          
+          {/* Name Input */}
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Name"
             value={editedProfile.name}
             onChangeText={(text) => setEditedProfile({ ...editedProfile, name: text })}
           />
+
+          {/* Email Input */}
           <TextInput
             style={styles.profileInput}
             placeholder="Email"
@@ -32,6 +49,32 @@ const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
             onChangeText={(text) => setEditedProfile({ ...editedProfile, email: text })}
             keyboardType="email-address"
           />
+
+          {/* Phone Number Input */}
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Phone Number"
+            value={editedProfile.phoneNumber}
+            onChangeText={(text) => setEditedProfile({ ...editedProfile, phoneNumber: text })}
+            keyboardType="phone-pad"
+          />
+
+          {/* District Input */}
+          <TextInput
+            style={styles.profileInput}
+            placeholder="District"
+            value={editedProfile.district}
+            onChangeText={(text) => setEditedProfile({ ...editedProfile, district: text })}
+          />
+
+          {/* Pradeshiya Sabha Input */}
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Pradeshiya Sabha"
+            value={editedProfile.pradeshiyaSabha}
+            onChangeText={(text) => setEditedProfile({ ...editedProfile, pradeshiyaSabha: text })}
+          />
+
           <View style={styles.modalButtonContainer}>
             <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -47,7 +90,6 @@ const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
 };
 
 const styles = StyleSheet.create({
-  // Modal Styles
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -72,7 +114,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  // Profile Input Styles
   profileInput: {
     width: '100%',
     borderBottomWidth: 1,
@@ -80,21 +121,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingVertical: 10,
     fontSize: 16,
-  },
-
-  // Button Styles
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#007bff',
-    borderRadius: 5,
-    width: '100%',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   modalButtonContainer: {
     flexDirection: 'row',
@@ -125,7 +151,8 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default ProfileEditModal;
+
