@@ -19,10 +19,10 @@ const Settings = () => {
 
   // Updated profile with additional fields
   const [profile, setProfile] = useState({
-    fullName: 'Johnathan Doe',
-    name: 'John Doe',
-    email: 'johndoe@example.com',
-    phoneNumber: '+1234567890',
+    //fullName: 'Johnathan Doe',
+    name: 'Ashen Sachinthana',
+    email: 'shensachin120@gmail.com',
+    phoneNumber: '+94703222635',
     district: 'Colombo',
     pradeshiyaSabha: 'Colombo City Sabha',
   });

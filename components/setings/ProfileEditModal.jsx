@@ -1,17 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { firstDropdownOptions, secondDropdownOptions } from '../../data/districtSabha'; // Adjust the import path
 
 const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
   const [editedProfile, setEditedProfile] = useState(profile);
+  const [selectedDistrict, setSelectedDistrict] = useState(profile.district || 'Select');
+  const [pradeshiyaSabhaOptions, setPradeshiyaSabhaOptions] = useState(
+    secondDropdownOptions[profile.district] || []
+  );
 
-  // Update editedProfile when profile prop changes
   useEffect(() => {
     setEditedProfile(profile);
+    setSelectedDistrict(profile.district || 'Select');
+    setPradeshiyaSabhaOptions(secondDropdownOptions[profile.district] || []);
   }, [profile]);
+
+  const handleDistrictChange = (district) => {
+    setSelectedDistrict(district);
+    setPradeshiyaSabhaOptions(secondDropdownOptions[district] || []);
+    setEditedProfile({ ...editedProfile, district: district, pradeshiyaSabha: '' });
+  };
 
   const handleSave = () => {
     onSaveProfile(editedProfile);
     onClose();
+  };
+
+  // Helper function to display password as asterisks
+  const getPasswordDisplay = () => {
+    return editedProfile.password ? '*'.repeat(editedProfile.password.length) : '';
   };
 
   return (
@@ -24,15 +42,7 @@ const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Edit Profile</Text>
-          
-          {/* Full Name Input */}
-          <TextInput
-            style={styles.profileInput}
-            placeholder="Full Name"
-            value={editedProfile.fullName}
-            onChangeText={(text) => setEditedProfile({ ...editedProfile, fullName: text })}
-          />
-          
+
           {/* Name Input */}
           <TextInput
             style={styles.profileInput}
@@ -59,20 +69,41 @@ const ProfileEditModal = ({ visible, onClose, profile, onSaveProfile }) => {
             keyboardType="phone-pad"
           />
 
-          {/* District Input */}
-          <TextInput
-            style={styles.profileInput}
-            placeholder="District"
-            value={editedProfile.district}
-            onChangeText={(text) => setEditedProfile({ ...editedProfile, district: text })}
-          />
+          {/* District Dropdown */}
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.label}>District</Text>
+            <Picker
+              selectedValue={selectedDistrict}
+              onValueChange={handleDistrictChange}
+            >
+              {firstDropdownOptions.map((option) => (
+                <Picker.Item key={option.districtid} label={option.name} value={option.name} />
+              ))}
+            </Picker>
+          </View>
 
-          {/* Pradeshiya Sabha Input */}
+          {/* Pradeshiya Sabha Dropdown */}
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.label}>Pradeshiya Sabha</Text>
+            <Picker
+              selectedValue={editedProfile.pradeshiyaSabha}
+              onValueChange={(value) =>
+                setEditedProfile({ ...editedProfile, pradeshiyaSabha: value })
+              }
+            >
+              {pradeshiyaSabhaOptions.map((option) => (
+                <Picker.Item key={option.id} label={option.name} value={option.name} />
+              ))}
+            </Picker>
+          </View>
+
+          {/* Password Input - Displaying as asterisks */}
           <TextInput
             style={styles.profileInput}
-            placeholder="Pradeshiya Sabha"
-            value={editedProfile.pradeshiyaSabha}
-            onChangeText={(text) => setEditedProfile({ ...editedProfile, pradeshiyaSabha: text })}
+            placeholder="Password"
+            value={getPasswordDisplay()}  // Display asterisks
+            onChangeText={(text) => setEditedProfile({ ...editedProfile, password: text })}
+            secureTextEntry
           />
 
           <View style={styles.modalButtonContainer}>
@@ -102,11 +133,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   modalTitle: {
     fontSize: 20,
@@ -121,6 +147,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     paddingVertical: 10,
     fontSize: 16,
+  },
+  dropdownContainer: {
+    width: '100%',
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 5,
   },
   modalButtonContainer: {
     flexDirection: 'row',
@@ -155,4 +190,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileEditModal;
-
