@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router'; // Ensure expo-router is installed and configured
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 const Records = () => {
   const router = useRouter(); // Access the router instance
@@ -92,6 +94,6 @@ const Records = () => {
   );
 };
 
-export default Records;
+export default Records;
 
 

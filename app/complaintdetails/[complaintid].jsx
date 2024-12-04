@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams } from 'expo-router';
 import { useRouter } from "expo-router";
+import { useTranslation } from 'react-i18next';
 
 import ImageUploadModal from '../../components/complaint/ImageUploadModal';
 import LocationPicker from '../../components/complaint/LocationPicker';
@@ -16,6 +17,7 @@ import categories from '../../data/complaintCategories';
 
 // ComplaintForm component
 const ComplaintForm = () => {
+  const { t } = useTranslation(); // Access the translation function
   const navigation = useNavigation();
   const [locationRemarks, setLocationRemarks] = useState('');
   const [complaintDescription, setComplaintDescription] = useState('');
@@ -68,10 +70,11 @@ const ComplaintForm = () => {
     };
   
     // Convert images to Base64
+    //complaintData.images.push(`data:image/jpeg;base64,${base64Image}`);
   try {
     for (const imageUri of images.filter(img => img)) { // Only process non-null images
       const base64Image = await FileSystem.readAsStringAsync(imageUri, { encoding: FileSystem.EncodingType.Base64 });
-      complaintData.images.push(`data:image/jpeg;base64,${base64Image}`);
+      complaintData.images.push(base64Image);
     }
   } catch (error) {
     Alert.alert('Image Error', 'Failed to process images. Please try again.');
@@ -180,7 +183,7 @@ const ComplaintForm = () => {
         <Text style={styles.sectionTitle}>Complaint Information</Text>
         <View style={styles.row}>
           <Text style={styles.label}>Complaint Category:</Text>
-          <Text>{category ? category.title : 'Category not found'}</Text>
+          <Text>{category ? t(category.title) : 'Category not found'}</Text>
         </View>
         <Text style={styles.sectionTitle}>Complaint Proofs</Text>
         <View style={styles.imageUpload}>

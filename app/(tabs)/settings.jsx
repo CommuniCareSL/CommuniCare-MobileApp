@@ -75,12 +75,12 @@ const Settings = () => {
       />
       <SettingItem
         icon="info"
-        title="Terms & Conditions"
+        title={t('tabs.settings.Terms')}
         onPress={() => setTermsModalVisible(true)}
       />
       <SettingItem
         icon="logout"
-        title="Logout"
+        title={t('tabs.settings.Logout')}
         onPress={() => setLogoutModalVisible(true)}
       />
     </SafeAreaView>
@@ -90,6 +90,7 @@ const Settings = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 40,
+    marginHorizontal: 10,
     flex: 1,
     backgroundColor: '#f4f4f4',
   },

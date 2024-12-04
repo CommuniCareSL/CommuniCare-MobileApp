@@ -72,7 +72,7 @@ const SignUp = () => {
         'You have signed up successfully!',
         [{ 
           text: 'OK', 
-          onPress: () => router.replace("/home") 
+          onPress: () => router.replace("/log-in") 
         }]
       );
     } catch (error) {
