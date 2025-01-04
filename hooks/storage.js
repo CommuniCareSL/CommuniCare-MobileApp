@@ -1,24 +1,39 @@
 import * as SecureStore from "expo-secure-store";
-import { jwtDecode } from 'jwt-decode';  // Changed to named import
 
-// Store the token and decoded user details in SecureStore
-export const setUserDetails = async (token) => {
+// Store the raw token
+export const setToken = async (token) => {
   try {
-    const decoded = jwtDecode(token); // Using named import
-
-    // Store the raw token and decoded user details
     await SecureStore.setItemAsync("authToken", token);
-    await SecureStore.setItemAsync("userDetails", JSON.stringify(decoded));
+    console.log("Token stored successfully!");
+  } catch (error) {
+    console.error("Error storing token:", error);
+    throw error;
+  }
+};
 
+// Retrieve the raw token for API calls
+export const getToken = async () => {
+  try {
+    return await SecureStore.getItemAsync("authToken");
+  } catch (error) {
+    console.error("Error retrieving token:", error);
+    throw error;
+  }
+};
+
+// Store user details
+export const setUserDetails = async (details) => {
+  try {
+    await SecureStore.setItemAsync("userDetails", JSON.stringify(details));
     console.log("User details stored successfully!");
-    return decoded;
   } catch (error) {
     console.error("Error storing user details:", error);
     throw error;
   }
 };
 
-// Retrieve the user details from SecureStore
+// Retrieve user details
+//    "userId": 3,"fullName": "Ashen Sachinthana","sabhaId": 1
 export const getUserDetails = async () => {
   try {
     const userDetails = await SecureStore.getItemAsync("userDetails");
@@ -29,38 +44,14 @@ export const getUserDetails = async () => {
   }
 };
 
-// Retrieve the raw token for API calls
-export const getToken = async () => {
-  return await SecureStore.getItemAsync("authToken");
-};
-
 // Clear all stored data (logout)
 export const clearUserData = async () => {
   try {
     await SecureStore.deleteItemAsync("authToken");
     await SecureStore.deleteItemAsync("userDetails");
+    console.log("User data cleared successfully!");
   } catch (error) {
     console.error("Error clearing user data:", error);
     throw error;
   }
 };
-
-// import * as SecureStore from 'expo-secure-store';
-
-// export const setToken = async (key, value) => {
-//     await SecureStore.setItemAsync(key, value);
-// };
-
-// export const getToken = async (key) => {
-//     return await SecureStore.getItemAsync(key);
-// };
-
-// export const deleteToken = async (key) => {
-//     await SecureStore.deleteItemAsync(key);
-// };
-
-
-
-
-
-
