@@ -16,6 +16,7 @@ export const login = async (credentials: { email: string; password: string }) =>
     }
 
     const data = await response.json(); // Assuming backend sends token and user data
+    //console.log(data);
     return data; // { token, user }
   } catch (error: any) {
     throw new Error(error.message || "Something went wrong");

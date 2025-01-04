@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 import ProfileEditModal from '../../components/setings/ProfileEditModal';
 import TermsModal from '../../components/setings/TermsModal';
 import LogoutModal from '../../components/setings/LogoutModal';
+import { clearUserData } from "../../hooks/storage";
 
 const Settings = () => {
   const { t } = useTranslation();
@@ -37,7 +38,8 @@ const Settings = () => {
   // };
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('authToken');
+      // await AsyncStorage.removeItem('authToken');
+      await clearUserData();
       console.log('User logged out');
       
       // Navigate to the Login screen after logout

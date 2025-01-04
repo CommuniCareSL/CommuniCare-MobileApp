@@ -12,9 +12,8 @@ import {
   Alert,
 } from "react-native";
 import { login } from "../../services/loginApi"; // Path to API file
-// import { setToken } from "../../hooks/storage";
+import { setToken } from "../../hooks/storage";
 import { setUserDetails } from "../../hooks/storage";
-import { jwtDecode } from 'jwt-decode';
 
 const LogIn = () => {
   const router = useRouter();
@@ -27,21 +26,25 @@ const LogIn = () => {
   const handleLogIn = async () => {
     try {
       setLoading(true);
-      
+
       // Call login API
       const response = await login({ email, password });
-      const { token } = response;
-      
+      // const { token } = response;
+      const { token, userId, fullName, sabhaId } = response;
+
       // Decode token separately for console logging
-      const decodedToken = jwtDecode(token);
-      
+      // const decodedToken = jwtDecode(token);
+
       // Store token and user details
-      await setUserDetails(token);
-      
+      // await setUserDetails(token);
+      await setToken(token);
+      await setUserDetails({ userId, fullName, sabhaId });
+
       // Print token and decoded details to the console
       // console.log("Stored Token:", token);
-      console.log("Decoded User Details:", decodedToken);
-      
+      // console.log("Decoded User Details:", decodedToken);
+      console.log("Login successful. User details stored.");
+
       Alert.alert("Success", "Logged in successfully");
       router.replace("/home");
     } catch (error) {
@@ -50,25 +53,6 @@ const LogIn = () => {
       setLoading(false);
     }
   };
-  
-
-//   const handleLogIn = async () => {
-//     try {
-//         setLoading(true);
-//         const response = await login({ email, password });
-//         const { token, user } = response;
-
-//         // Store token securely
-//         await setToken("authToken", token);
-
-//         Alert.alert("Success", "Logged in successfully");
-//         router.replace("/home");
-//     } catch (error) {
-//         Alert.alert("Login Failed", error.message || "Please try again");
-//     } finally {
-//         setLoading(false);
-//     }
-// };
 
   return (
     <SafeAreaView className="bg-white h-full">
@@ -126,8 +110,13 @@ const LogIn = () => {
           </TouchableOpacity>
 
           <View className="flex-row justify-center items-center">
-            <Text className="text-lg text-gray-700">Don't have an account?</Text>
-            <Link href="/sign-up" className="text-lg font-bold text-[#007bff] ml-2">
+            <Text className="text-lg text-gray-700">
+              Don't have an account?
+            </Text>
+            <Link
+              href="/sign-up"
+              className="text-lg font-bold text-[#007bff] ml-2"
+            >
               Signup
             </Link>
           </View>
