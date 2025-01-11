@@ -22,3 +22,16 @@ export const fetchBookedDatesByGroundId = async (groundId) => {
     throw error;
   }
 };
+
+export const submitReservation = async (payload) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/ground-reservation`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to submit reservation:", error);
+    throw error;
+  }
+};
