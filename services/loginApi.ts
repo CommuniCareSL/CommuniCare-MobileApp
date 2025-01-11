@@ -2,7 +2,7 @@ import BASE_URL from "../constants/config";
 
 export const login = async (credentials: { email: string; password: string }) => {
   try {
-    const response = await fetch(`${BASE_URL}/users/login`, {
+    const response = await fetch(`${BASE_URL}/user/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

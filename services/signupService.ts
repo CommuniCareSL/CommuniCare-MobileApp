@@ -15,8 +15,8 @@ interface SignUpData {
 export const authService = {
   async signUp(userData: SignUpData) {
     try {
-    //   console.log("Sign Up Form Data:", userData);
-      const response = await axios.post(`${BASE_URL}/users/sign-up`, {
+      console.log("Sign Up Form Data:", userData);
+      const response = await axios.post(`${BASE_URL}/user/sign-up`, {
         fullName: userData.fullName,
         idNumber: userData.idNumber,
         phoneNumber: userData.phoneNumber,
