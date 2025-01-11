@@ -11,16 +11,16 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as SecureStore from 'expo-secure-store';
-import { submitReservation } from '../../../services/reservationService'; // Adjust the path as per your folder structure
+import { submitReservation } from '../../../services/reservationService';
+import { fetchGroundsBySabhaId } from '../../../services/reservations/groundService'; // Import the service
+import RNPickerSelect from 'react-native-picker-select'; // For dropdown
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  address: Yup.string().required('Address is required'),
-  idNumber: Yup.string().required('ID number is required'),
-  telephone: Yup.string().required('Telephone number is required'),
-  event: Yup.string().required('Event description is required'),
+  event: Yup.string().required('Event is required'),
+  description: Yup.string().required('Description is required'),
   date: Yup.string().required('Date is required'),
+  groundId: Yup.string().required('Ground selection is required'),
   agree: Yup.boolean().oneOf([true], 'You must agree to the terms and conditions'),
 });
 
@@ -28,21 +28,30 @@ const PlaygroundReservation = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [userId, setUserId] = useState(null);
+  const [sabhaId, setSabhaId] = useState(null);
+  const [grounds, setGrounds] = useState([]); // List of grounds
+  const [selectedGround, setSelectedGround] = useState(null); // Selected ground details
 
-  // Fetch user ID from secure storage
+  // Fetch user details (userId and sabhaId) from secure storage
   useEffect(() => {
-    const fetchUserId = async () => {
+    const fetchUserDetails = async () => {
       try {
         const storedUserDetails = await SecureStore.getItemAsync('userDetails');
         if (storedUserDetails) {
-          const { userId } = JSON.parse(storedUserDetails);
+          const { userId, sabhaId } = JSON.parse(storedUserDetails);
           setUserId(userId);
+          setSabhaId(sabhaId);
+
+          // Fetch grounds using sabhaId
+          const groundsData = await fetchGroundsBySabhaId(sabhaId);
+          setGrounds(groundsData);
         }
       } catch (error) {
-        console.error('Failed to fetch user ID:', error);
+        console.error('Failed to fetch user details:', error);
       }
     };
-    fetchUserId();
+
+    fetchUserDetails();
   }, []);
 
   const handleDateChange = (event, selectedDate) => {
@@ -58,27 +67,28 @@ const PlaygroundReservation = () => {
 
         <Formik
           initialValues={{
-            name: '',
-            address: '',
-            idNumber: '',
-            telephone: '',
             event: '',
+            description: '',
             date: '',
+            groundId: '',
             agree: false,
           }}
           validationSchema={validationSchema}
           onSubmit={async (values, { resetForm }) => {
+            // Prepare payload for backend
             const payload = {
               ...values,
-              userId,  // User's ID
-              reservationId: 1,  // Reservation ID for playground (static value)
-              date: selectedDate.toISOString().split('T')[0],
+              userId, // Include userId from state
+              sabhaId, // Include sabhaId from state
+              reservationId: 1, // Static value for playground reservation
+              date: selectedDate.toISOString().split('T')[0], // Format date
             };
 
             // Log the payload to the console
             console.log('Data sent to backend:', payload);
 
             try {
+              // Submit reservation to backend
               await submitReservation(payload);
               alert('Reservation submitted successfully');
               resetForm();
@@ -98,51 +108,53 @@ const PlaygroundReservation = () => {
             touched,
           }) => (
             <View style={styles.form}>
+              {/* Event Input */}
               <TextInput
                 style={styles.input}
-                placeholder="Name"
-                onChangeText={handleChange('name')}
-                onBlur={handleBlur('name')}
-                value={values.name}
-              />
-              {touched.name && errors.name && <Text style={styles.error}>{errors.name}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Address"
-                onChangeText={handleChange('address')}
-                onBlur={handleBlur('address')}
-                value={values.address}
-              />
-              {touched.address && errors.address && <Text style={styles.error}>{errors.address}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="ID Number"
-                onChangeText={handleChange('idNumber')}
-                onBlur={handleBlur('idNumber')}
-                value={values.idNumber}
-              />
-              {touched.idNumber && errors.idNumber && <Text style={styles.error}>{errors.idNumber}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Telephone Number"
-                onChangeText={handleChange('telephone')}
-                onBlur={handleBlur('telephone')}
-                value={values.telephone}
-              />
-              {touched.telephone && errors.telephone && <Text style={styles.error}>{errors.telephone}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="What is Held (Event Description)"
+                placeholder="What is Held (Event)"
                 onChangeText={handleChange('event')}
                 onBlur={handleBlur('event')}
                 value={values.event}
               />
               {touched.event && errors.event && <Text style={styles.error}>{errors.event}</Text>}
 
+              {/* Description Input */}
+              <TextInput
+                style={styles.input}
+                placeholder="Description"
+                onChangeText={handleChange('description')}
+                onBlur={handleBlur('description')}
+                value={values.description}
+              />
+              {touched.description && errors.description && <Text style={styles.error}>{errors.description}</Text>}
+
+              {/* Ground Selection Dropdown */}
+              <View style={styles.dropdownContainer}>
+                <RNPickerSelect
+                  placeholder={{ label: 'Select Ground', value: null }}
+                  items={grounds.map((ground) => ({
+                    label: ground.name,
+                    value: ground.groundId,
+                  }))}
+                  onValueChange={(value) => {
+                    setFieldValue('groundId', value);
+                    const selected = grounds.find((ground) => ground.groundId === value);
+                    setSelectedGround(selected);
+                  }}
+                  value={values.groundId}
+                />
+              </View>
+              {touched.groundId && errors.groundId && <Text style={styles.error}>{errors.groundId}</Text>}
+
+              {/* Display Area and Terms */}
+              {selectedGround && (
+                <>
+                  <Text style={styles.label}>Area: {selectedGround.area}</Text>
+                  <Text style={styles.label}>Terms: {selectedGround.terms}</Text>
+                </>
+              )}
+
+              {/* Date Picker */}
               <TouchableOpacity
                 style={styles.datePickerButton}
                 onPress={() => setShowDatePicker(true)}
@@ -164,7 +176,7 @@ const PlaygroundReservation = () => {
               )}
               {touched.date && errors.date && <Text style={styles.error}>{errors.date}</Text>}
 
-              {/* Declaration in a box */}
+              {/* Declaration Box */}
               <View style={styles.declarationBox}>
                 <Text style={styles.declaration}>
                   By reserving this playground, I agree to the terms and conditions:
@@ -224,6 +236,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F8FF',
     borderRadius: 5,
     padding: 10,
+    marginBottom: 10,
+  },
+  dropdownContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
+    backgroundColor: '#F0F8FF',
+  },
+  label: {
+    fontSize: 14,
+    color: '#555',
     marginBottom: 10,
   },
   datePickerButton: {
@@ -296,6 +320,3 @@ const styles = StyleSheet.create({
 });
 
 export default PlaygroundReservation;
-
-
-
