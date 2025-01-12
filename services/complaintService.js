@@ -21,7 +21,7 @@ export const submitComplaint = async (complaintData) => {
     //console.log("Complaint Payload:", JSON.stringify(payload, null, 2));
 
     try {
-      const response = await axios.post(`${BASE_URL}/user/complaints`, payload, {
+      const response = await axios.post(`${BASE_URL}/complaint`, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
