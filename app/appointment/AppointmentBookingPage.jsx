@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Dimensions, Alert, } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
@@ -171,45 +171,39 @@ const AppointmentBookingPage = () => {
     setSelectedTimeSlot(slot);
   };
 
-  // const handleBookAppointment = () => {
-  //   // Implement booking logic
-  //   console.log('Booking:', {
-  //     service: serviceTitle,
-  //     date: selectedDate,
-  //     timeSlot: selectedTimeSlot,
-  //     notes
-  //   });
-  // };
-
   const handleBookAppointment = async () => {
-    if (!userId || ! departmentId || !selectedDate || !selectedTimeSlot) {
+    if (!userId || !departmentId || !selectedDate || !selectedTimeSlot) {
       Alert.alert('Error', 'Please complete all booking details');
       return;
     }
-
+  
     try {
       const bookingData = {
         userId,
+        sabhaId, // Include sabhaId
+        serviceId, // Include serviceId
+        serviceTitle,
         departmentId,
         date: selectedDate,
-        timeSlot: selectedTimeSlot.value,
-        notes: notes || ''
+        timeSlot: selectedTimeSlot.time, // Use the formatted time (e.g., "08:30 AM")
+        notes: notes || '',
       };
-
+  
+      // Send booking data to the backend
       const response = await AppointmentService.bookAppointment(bookingData);
-      
+  
       Alert.alert('Success', 'Appointment booked successfully!', [
         {
-          text: 'OK', 
-          onPress: () => router.push('/appointments')
-        }
+          text: 'OK',
+          onPress: () => router.push('/services'),
+        },
       ]);
     } catch (error) {
       console.error('Booking failed:', error);
       Alert.alert('Error', 'Failed to book appointment. Please try again.');
     }
   };
-
+  
   // Modify time slot rendering to show booked status
   const renderTimeSlots = () => {
     const screenWidth = Dimensions.get('window').width;
@@ -268,8 +262,9 @@ const AppointmentBookingPage = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Service Name */}
+        <View>
         <Text className="text-xl font-medium text-blue-600 mb-2 mt-8">{serviceTitle}</Text>
-
+        </View>
         {/* Calendar */}
         <View className="mb-4">
           <Calendar

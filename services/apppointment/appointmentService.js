@@ -29,13 +29,10 @@ const AppointmentService = {
   },
 
   // Book an appointment
+  // Book an appointment
   bookAppointment: async (bookingData) => {
     try {
-      
-
-      const response = await axios.post(`${BASE_URL}/appointments`, bookingData, {
-      });
-
+      const response = await axios.post(`${BASE_URL}/appointment`, bookingData);
       return response.data;
     } catch (error) {
       console.error('Booking appointment error:', error.response ? error.response.data : error.message);
