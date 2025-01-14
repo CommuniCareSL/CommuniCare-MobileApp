@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useLocalSearchParams, useRouter } from 'expo-router';import { getUserDetails } from "../../hooks/storage";
-import AppointmentService from '../../services/AppointmentService'; // Update path as needed
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { getUserDetails } from "../../hooks/storage";
+import AppointmentService from '../../services/apppointment/appointmentService'; // Update path as needed
 
 const AppointmentBookingPage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
