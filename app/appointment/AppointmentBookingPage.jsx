@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { getUserDetails } from "../../hooks/storage";
+import * as SecureStore from "expo-secure-store";
 import AppointmentService from '../../services/apppointment/appointmentService'; // Update path as needed
 
 const AppointmentBookingPage = () => {
@@ -10,36 +10,54 @@ const AppointmentBookingPage = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(null);
   const [notes, setNotes] = useState('');
   const [bookedSlots, setBookedSlots] = useState([]);
-  const { serviceId, serviceTitle } = useLocalSearchParams();
+  const [holidayDates, setHolidayDates] = useState([]); // State to store holiday dates
+  const { serviceId, serviceTitle, departmentId } = useLocalSearchParams();
   const [userId, setUserId] = useState(null);
+  const [sabhaId, setSabhaId] = useState(null);
   const router = useRouter();
 
+  // Fetch holiday dates when the component mounts
   useEffect(() => {
-    // Fetch userId when the page loads
-    const fetchUserId = async () => {
+    const fetchHolidayDates = async () => {
       try {
-        const userDetails = await getUserDetails();
-        if (userDetails) {
-          setUserId(userDetails.userId);
-        } else {
-          console.log("No user details found");
-        }
+        const holidays = await AppointmentService.getHolidayDates();
+        setHolidayDates(holidays);
       } catch (error) {
-        console.error("Error fetching user ID:", error);
+        console.error('Failed to fetch holiday dates:', error);
+        Alert.alert('Error', 'Failed to fetch holiday dates. Please try again later.');
       }
     };
 
-    fetchUserId();
+    fetchHolidayDates();
+  }, []);
+
+  // Fetch user details
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const storedUserDetails = await SecureStore.getItemAsync("userDetails");
+        if (storedUserDetails) {
+          const { userId, sabhaId } = JSON.parse(storedUserDetails);
+          setUserId(userId);
+          setSabhaId(sabhaId);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+
+    fetchUserDetails();
   }, []);
 
   // Check availability when a date is selected
   useEffect(() => {
     const checkAvailability = async () => {
-      if (selectedDate && serviceId) {
+      if (selectedDate && departmentId && sabhaId) {
         try {
           const slots = await AppointmentService.checkTimeSlotAvailability(
-            serviceId, 
-            selectedDate
+            sabhaId, // Correct order: sabhaId first
+            departmentId, // departmentId second
+            selectedDate // selectedDate third
           );
           setBookedSlots(slots);
         } catch (error) {
@@ -48,99 +66,101 @@ const AppointmentBookingPage = () => {
         }
       }
     };
-
+  
     checkAvailability();
-  }, [selectedDate, serviceId]);
+  }, [selectedDate, departmentId, sabhaId]);
 
-  // Generate time slots in 20-minute intervals
+  // Generate time slots in 15-minute intervals
   const generateTimeSlots = useMemo(() => {
     const slots = [];
     const startTime = 8.5; // 8:30 AM
     const endTime = 16; // 4:00 PM
-
-    for (let time = startTime; time < endTime; time += 1/3) {
+  
+    for (let time = startTime; time < endTime; time += 0.25) { // Increment by 0.25 (15 minutes)
       // Skip 12:00-1:00 PM
       if (time >= 12 && time < 13) continue;
-
+  
       const hours = Math.floor(time);
       const minutes = Math.round((time % 1) * 60);
       const formattedMinutes = minutes.toString().padStart(2, '0');
       const period = hours >= 12 ? 'PM' : 'AM';
       const displayHours = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-
+  
       const slotTime = `${displayHours}:${formattedMinutes} ${period}`;
-
+  
       // Check if slot is already booked
       const isBooked = bookedSlots.includes(time);
-
+  
       slots.push({
         time: slotTime,
         value: time,
         isBooked: isBooked
       });
     }
-
+  
     return slots;
   }, [bookedSlots]);
 
   // Disable dates before a specific future date
   const markedDates = useMemo(() => {
-    const today = new Date();
-    const currentYear = today.getFullYear();
-    const currentMonth = today.getMonth();
-    const currentDate = today.getDate();
-    
-    const disabledDates = {};
-    
-    // Function to check if a date is a weekend (Saturday or Sunday)
-    const isWeekend = (date) => {
-      const day = date.getDay();
-      return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
-    };
-    
-    // Generate disabled dates
-    for (let year = today.getFullYear() - 1; year <= currentYear + 1; year++) {
-      for (let month = 0; month <= 11; month++) {
-        // Get the last day of the month
-        const lastDay = new Date(year, month + 1, 0).getDate();
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  const currentDate = today.getDate();
+  
+  const disabledDates = {};
+  
+  // Function to check if a date is a weekend (Saturday or Sunday)
+  const isWeekend = (date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  };
+  
+  // Generate disabled dates
+  for (let year = today.getFullYear() - 1; year <= currentYear + 1; year++) {
+    for (let month = 0; month <= 11; month++) {
+      // Get the last day of the month
+      const lastDay = new Date(year, month + 1, 0).getDate();
+      
+      for (let day = 1; day <= lastDay; day++) {
+        const currentDate = new Date(year, month, day);
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
-        for (let day = 1; day <= lastDay; day++) {
-          const currentDate = new Date(year, month, day);
-          
-          // Block conditions:
-          // 1. Weekend days
-          // 2. Dates before current date
-          const shouldDisable = 
-            isWeekend(currentDate) || 
-            (year < today.getFullYear() || 
-             (year === today.getFullYear() && 
-              (month < today.getMonth() || 
-               (month === today.getMonth() && day < today.getDate() + 2))));
-          
-          if (shouldDisable) {
-            const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            disabledDates[dateString] = { 
-              disabled: true, 
-              disableTouchEvent: true,
-              color: '#CCCCCC',
-              textColor: '#888888'
-            };
-          }
+        // Block conditions:
+        // 1. Weekend days
+        // 2. Dates before current date
+        // 3. Holiday dates
+        const shouldDisable = 
+          isWeekend(currentDate) || 
+          (year < today.getFullYear() || 
+           (year === today.getFullYear() && 
+            (month < today.getMonth() || 
+             (month === today.getMonth() && day < today.getDate() + 3)))) ||
+          holidayDates.includes(dateString);
+        
+        if (shouldDisable) {
+          disabledDates[dateString] = { 
+            disabled: true, 
+            disableTouchEvent: true,
+            color: '#CCCCCC',
+            textColor: '#888888'
+          };
         }
       }
     }
-  
-    // Highlight selected date
-    if (selectedDate) {
-      disabledDates[selectedDate] = { 
-        ...disabledDates[selectedDate],
-        selected: true, 
-        selectedColor: '#007BFF'
-      };
-    }
-  
-    return disabledDates;
-  }, [selectedDate]);
+  }
+
+  // Highlight selected date
+  if (selectedDate) {
+    disabledDates[selectedDate] = { 
+      ...disabledDates[selectedDate],
+      selected: true, 
+      selectedColor: '#007BFF'
+    };
+  }
+
+  return disabledDates;
+}, [selectedDate, holidayDates]);
 
   const handleDateSelect = (day) => {
     setSelectedDate(day.dateString);
@@ -162,7 +182,7 @@ const AppointmentBookingPage = () => {
   // };
 
   const handleBookAppointment = async () => {
-    if (!userId || !serviceId || !selectedDate || !selectedTimeSlot) {
+    if (!userId || ! departmentId || !selectedDate || !selectedTimeSlot) {
       Alert.alert('Error', 'Please complete all booking details');
       return;
     }
@@ -170,7 +190,7 @@ const AppointmentBookingPage = () => {
     try {
       const bookingData = {
         userId,
-        serviceId,
+        departmentId,
         date: selectedDate,
         timeSlot: selectedTimeSlot.value,
         notes: notes || ''

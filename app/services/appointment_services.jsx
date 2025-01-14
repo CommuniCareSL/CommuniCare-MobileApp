@@ -56,7 +56,7 @@ const Services = () => {
     // Navigate to appointment booking screen with service details
     router.push({
       pathname: '../appointment/AppointmentBookingPage',
-      params: { serviceId: service.id, serviceTitle: service.title }
+      params: { serviceId: service.id, serviceTitle: service.title, departmentId: service.departmentId },
     });
   };
 
