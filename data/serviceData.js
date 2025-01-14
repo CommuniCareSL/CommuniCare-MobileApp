@@ -1,7 +1,7 @@
 export const reservationServices = [
   { 
     id: '1',
-    departmentId: '1',
+    departmentId: '5',
     title: "Approval of building plans", 
     description: "",
     details: {
@@ -18,7 +18,7 @@ export const reservationServices = [
   },
   { 
     id: '2',
-    departmentId: '2',
+    departmentId: '5',
     title: "Approving land subdivision and amalgamation development plans", 
     description: "", 
     details: {
@@ -36,7 +36,7 @@ export const reservationServices = [
   },
   { 
     id: '3',
-    departmentId: '3',
+    departmentId: '5',
     title: "Issuance of Certificate of Conformity", 
     description: "", 
     details: {
@@ -70,7 +70,7 @@ export const reservationServices = [
   },
   { 
     id: '6',
-    departmentId: '5',
+    departmentId: '4',
     title: "Obtaining an Environmental Compliance Certificate", 
     description: "", 
     details: {
