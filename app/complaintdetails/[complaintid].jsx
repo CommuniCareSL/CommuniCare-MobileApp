@@ -112,7 +112,7 @@ const ComplaintForm = () => {
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
     setShowMap(false);
-    setLocationRemarks(`Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)}`);
+    //setLocationRemarks(`Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)}`);
   };
 
   const handleImageUpload = () => {
@@ -215,8 +215,8 @@ const ComplaintForm = () => {
         <TextInput
           style={styles.input}
           placeholder="Location Remarks"
-          // value={locationRemarks}
-          // onChangeText={setLocationRemarks}
+          value={locationRemarks}
+          onChangeText={setLocationRemarks}
         />
         <TextInput
           style={styles.input}
