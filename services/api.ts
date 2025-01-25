@@ -6,7 +6,7 @@ import { MMKV } from 'react-native-mmkv';
 export const storage = new MMKV();
 
 // Base URL for your backend API
-const BASE_URL = 'http://192.168.8.116:8080/api/users'; // Replace with your actual backend IP/URL
+const BASE_URL = 'http://192.168.8.176:3000'; // Replace with your actual backend IP/URL
 
 // Define the shape of signup request
 interface SignUpRequest {
