@@ -2,7 +2,7 @@ export const reservationServices = [
   { 
     id: '1',
     departmentId: '5',
-    title: "Approval of building plans", 
+    title: "Approval of Building Plans", 
     description: "",
     details: {
     processingTime: '14 -21 days',
@@ -19,7 +19,7 @@ export const reservationServices = [
   { 
     id: '2',
     departmentId: '5',
-    title: "Approving land subdivision and amalgamation development plans", 
+    title: "Approving Land Subdivision and Amalgamation Development Plans", 
     description: "", 
     details: {
     processingTime: '14-21 days',
@@ -54,7 +54,7 @@ export const reservationServices = [
   { 
     id: '5',
     departmentId: '4',
-    title: "Obtaining a trade license", 
+    title: "Obtaining a Trade License", 
     description: "", 
     details: {
     processingTime: '7-21 days',
