@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,92 +6,140 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Image,
+  Alert,
 } from 'react-native';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import PaymentGateway from "../../../components/payment/PaymentGateway";
+import LocationPicker from '../../../components/complaint/LocationPicker';
+import { submitGullyReservation } from '../../../services/reservations/gullyService';
+import * as SecureStore from 'expo-secure-store';
+import { useRouter } from 'expo-router';
 
-// Validation schema for the form
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  address: Yup.string().required('Address is required'),
-  idNumber: Yup.string().required('ID number is required'),
   telephone: Yup.string().required('Telephone number is required'),
-  location: Yup.string().required('Location is required'),
-  frequency: Yup.string().required('Expected frequency is required'),
-  agree: Yup.boolean().oneOf([true], 'You must agree to the terms and conditions'),
+  frequency: Yup.number()
+    .required('Frequency is required')
+    .min(1, 'Minimum 1 frequency'),
+  agree: Yup.boolean().oneOf([true], 'You must agree to the terms'),
 });
 
 const GullyBowserReservation = () => {
+  const [showMap, setShowMap] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [userId, setUserId] = useState(null);
+  const [sabhaId, setSabhaId] = useState(null);
+  const PRICE_PER_FREQUENCY = 5000;
+  const router = useRouter();
+
+  const termsAndConditions = [
+    "Bowser could reach the gully without any disturbance",
+    "Advance payment required for confirmation",
+    "The gullies should remain liquid",
+    "Late arrivals will not receive time extension",
+    "Damage to equipment will incur penalty charges",
+  ];
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const storedUserDetails = await SecureStore.getItemAsync("userDetails");
+        if (storedUserDetails) {
+          const { userId, sabhaId } = JSON.parse(storedUserDetails);
+          setUserId(userId);
+          setSabhaId(sabhaId);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+        Alert.alert("Error", "Failed to load user information");
+      }
+    };
+    fetchUserDetails();
+  }, []);
+
+  const handleLocationSelect = (location) => {
+    setSelectedLocation(location);
+    setShowMap(false);
+  };
+
+  const calculateTotal = (frequency) => frequency * PRICE_PER_FREQUENCY;
+
+  const handleSubmit = (values) => {
+    if (!selectedLocation) {
+      Alert.alert("Error", "Please select a location from the map");
+      return;
+    }
+    const total = calculateTotal(values.frequency);
+    setTotalPayment(total);
+    setPaymentModalVisible(true);
+  };
+
+  const handlePaymentSuccess = async (values) => {
+    try {
+      const payload = {
+        ...values,
+        userId,
+        sabhaId,
+        location: `${selectedLocation.latitude},${selectedLocation.longitude}`,
+        totalPayment,
+      };
+      await submitGullyReservation(payload);
+      Alert.alert("Success", "Reservation submitted successfully!");
+      setPaymentModalVisible(false);
+      router.replace('/services');
+    } catch (error) {
+      Alert.alert("Error", error.message || "Reservation failed");
+    }
+  };
+
+  if (showMap) {
+    return <LocationPicker onLocationSelect={handleLocationSelect} onClose={() => setShowMap(false)} />;
+  }
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
         <Text style={styles.title}>Gully Bowser Reservation</Text>
+        <Text style={styles.priceText}>Rs. {PRICE_PER_FREQUENCY} per frequency</Text>
 
-        {/* Form Section */}
         <Formik
-          initialValues={{
-            name: '',
-            address: '',
-            idNumber: '',
-            telephone: '',
-            location: '',
-            frequency: '',
-            agree: false,
-          }}
+          initialValues={{ telephone: '', frequency: '', agree: false }}
           validationSchema={validationSchema}
-          onSubmit={(values) => {
-            console.log(values); // Handle form submission
-          }}
+          onSubmit={handleSubmit}
         >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            setFieldValue,
-            values,
-            errors,
-            touched,
-          }) => (
+          {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
             <View style={styles.form}>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                onChangeText={handleChange('name')}
-                onBlur={handleBlur('name')}
-                value={values.name}
-              />
-              {touched.name && errors.name && (
-                <Text style={styles.error}>{errors.name}</Text>
-              )}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Address"
-                onChangeText={handleChange('address')}
-                onBlur={handleBlur('address')}
-                value={values.address}
-              />
-              {touched.address && errors.address && (
-                <Text style={styles.error}>{errors.address}</Text>
-              )}
-
-              <TextInput
-                style={styles.input}
-                placeholder="ID Number"
-                onChangeText={handleChange('idNumber')}
-                onBlur={handleBlur('idNumber')}
-                value={values.idNumber}
-              />
-              {touched.idNumber && errors.idNumber && (
-                <Text style={styles.error}>{errors.idNumber}</Text>
-              )}
+              <View style={styles.inputContainer}>
+                <TouchableOpacity
+                  style={styles.locationButton}
+                  onPress={() => setShowMap(true)}
+                >
+                  <Text style={[
+                    styles.locationText,
+                    !selectedLocation && styles.placeholderText
+                  ]}>
+                    {selectedLocation ? 
+                      `Location: ${selectedLocation.latitude.toFixed(6)}, ${selectedLocation.longitude.toFixed(6)}` : 
+                      'Select Location from Map'}
+                  </Text>
+                  <Image 
+                    source={require('../../../assets/images/location.png')} 
+                    style={styles.locationIcon} 
+                  />
+                </TouchableOpacity>
+              </View>
 
               <TextInput
                 style={styles.input}
                 placeholder="Telephone Number"
+                placeholderTextColor="#666"
                 onChangeText={handleChange('telephone')}
                 onBlur={handleBlur('telephone')}
                 value={values.telephone}
+                keyboardType="phone-pad"
               />
               {touched.telephone && errors.telephone && (
                 <Text style={styles.error}>{errors.telephone}</Text>
@@ -99,56 +147,59 @@ const GullyBowserReservation = () => {
 
               <TextInput
                 style={styles.input}
-                placeholder="Location"
-                onChangeText={handleChange('location')}
-                onBlur={handleBlur('location')}
-                value={values.location}
-              />
-              {touched.location && errors.location && (
-                <Text style={styles.error}>{errors.location}</Text>
-              )}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Expected Frequency"
-                onChangeText={handleChange('frequency')}
+                placeholder="Number of Frequencies"
+                placeholderTextColor="#666"
+                onChangeText={(value) => {
+                  handleChange('frequency')(value);
+                  setTotalPayment(calculateTotal(Number(value)));
+                }}
                 onBlur={handleBlur('frequency')}
                 value={values.frequency}
+                keyboardType="numeric"
               />
               {touched.frequency && errors.frequency && (
                 <Text style={styles.error}>{errors.frequency}</Text>
               )}
 
-              {/* Declaration in a box */}
-              <View style={styles.declarationBox}>
-                <Text style={styles.declaration}>
-                  By reserving the gully bowser, I agree to the terms and conditions:
-                  {'\n'}- Use the service responsibly.{'\n'}- Pay the required fees promptly.
-                </Text>
+              <Text style={styles.totalText}>Total: Rs. {totalPayment}</Text>
+
+              <View style={styles.termsContainer}>
+                <Text style={styles.termsTitle}>Terms & Conditions:</Text>
+                {termsAndConditions.map((term, index) => (
+                  <View key={index} style={styles.termItem}>
+                    <Text style={styles.bullet}>•</Text>
+                    <Text style={styles.termText}>{term}</Text>
+                  </View>
+                ))}
               </View>
 
-              {/* Radio Button for Agreement */}
-              <TouchableOpacity
-                style={styles.radioContainer}
-                onPress={() => setFieldValue('agree', !values.agree)}
-              >
-                <View style={styles.radioButton}>
-                  {values.agree && <View style={styles.radioButtonInner} />}
-                </View>
-                <Text style={styles.radioText}>I Agree</Text>
-              </TouchableOpacity>
+              <View style={styles.radioContainer}>
+                <TouchableOpacity
+                  style={styles.radioButton}
+                  onPress={() => setFieldValue('agree', !values.agree)}
+                >
+                  {values.agree && <View style={styles.radioInner} />}
+                </TouchableOpacity>
+                <Text style={styles.radioText}>I agree to the terms & conditions</Text>
+              </View>
               {touched.agree && errors.agree && (
                 <Text style={styles.error}>{errors.agree}</Text>
               )}
 
-              {/* Submit Button */}
               <TouchableOpacity
-                style={[styles.submitButton, !values.agree && { backgroundColor: '#ccc' }]}
+                style={[styles.submitButton, !values.agree && styles.disabledButton]}
                 onPress={handleSubmit}
                 disabled={!values.agree}
               >
-                <Text style={styles.buttonText}>Submit</Text>
+                <Text style={styles.buttonText}>Proceed to Payment</Text>
               </TouchableOpacity>
+
+              <PaymentGateway
+                visible={isPaymentModalVisible}
+                onClose={() => setPaymentModalVisible(false)}
+                onPaymentSuccess={() => handlePaymentSuccess(values)}
+                totalPayment={totalPayment}
+              />
             </View>
           )}
         </Formik>
@@ -169,31 +220,90 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
+    color: '#333',
+  },
+  priceText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   form: {
-    padding: 10,
+    paddingHorizontal: 10,
+  },
+  inputContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 15,
+    backgroundColor: '#F0F8FF',
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 15,
+  },
+  locationText: {
+    fontSize: 16,
+    flex: 1,
+  },
+  placeholderText: {
+    color: '#888',
+  },
+  locationIcon: {
+    width: 24,
+    height: 24,
+    tintColor: '#666',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    backgroundColor: '#F0F8FF',
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  declarationBox: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    borderRadius: 8,
     padding: 15,
+    marginBottom: 15,
+    fontSize: 16,
     backgroundColor: '#F0F8FF',
-    marginVertical: 10,
+    color: '#333',
   },
-  declaration: {
+  totalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 15,
+    color: '#333',
+  },
+  termsContainer: {
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: '#f8f9fa',
+  },
+  termsTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#333',
+  },
+  termItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  bullet: {
+    fontSize: 16,
+    marginRight: 8,
+    color: '#666',
+  },
+  termText: {
+    flex: 1,
     fontSize: 14,
-    color: '#555',
+    color: '#666',
+    lineHeight: 20,
   },
   radioContainer: {
     flexDirection: 'row',
@@ -206,11 +316,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 2,
     borderColor: '#28a745',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 10,
   },
-  radioButtonInner: {
+  radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
@@ -218,23 +328,28 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
-    color: '#555',
+    color: '#333',
   },
   submitButton: {
     backgroundColor: '#ffc107',
-    padding: 15,
-    borderRadius: 5,
+    borderRadius: 8,
+    padding: 16,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
   buttonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   error: {
-    color: 'red',
-    fontSize: 12,
+    color: '#dc3545',
+    fontSize: 14,
     marginBottom: 5,
+    marginLeft: 5,
   },
 });
 
