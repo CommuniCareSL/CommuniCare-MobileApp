@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 import { getUserDetails } from "../../../../hooks/storage";
 import { fetchUserAppointments } from '../../../../services/status/appointmentstatusService';
 
@@ -12,6 +13,12 @@ const AppointmentStatus = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [cancelNote, setCancelNote] = useState('');
+  const [showCancelConfirmation, setShowCancelConfirmation] = useState(false);
+  const [appointmentToCancel, setAppointmentToCancel] = useState(null);
+  const { t } = useTranslation();
+
+  const API_BASE_URL = 'http://your-backend-url:3000'; // Update with your backend URL
 
   const statusMap = {
     0: { text: 'Booked', color: 'bg-blue-100 text-blue-700' },
@@ -52,6 +59,30 @@ const AppointmentStatus = () => {
     };
     loadAppointments();
   }, [userId]);
+
+  const handleCancelAppointment = async () => {
+    if (!cancelNote.trim()) {
+      alert('Please enter a cancellation reason');
+      return;
+    }
+
+    try {
+      await axios.put(
+        `${API_BASE_URL}/appointment/user/${appointmentToCancel.appointmentId}/cancel`,
+        { cancelReason: cancelNote }
+      );
+
+      // Refresh appointments
+      const data = await fetchUserAppointments(userId);
+      setAppointments(data);
+      setSelectedAppointment(null);
+      setShowCancelConfirmation(false);
+      setCancelNote('');
+    } catch (error) {
+      console.error('Cancellation failed:', error);
+      alert('Failed to cancel appointment');
+    }
+  };
 
   const DetailSection = ({ title, data }) => {
     if (loading) {
@@ -113,6 +144,7 @@ const AppointmentStatus = () => {
         </View>
       </ScrollView>
 
+      {/* Appointment Details Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -138,12 +170,70 @@ const AppointmentStatus = () => {
               <DetailRow label="Created At" value={formatDate(selectedAppointment?.createdAt)} />
             </View>
 
-            <TouchableOpacity
-              className="bg-blue-500 py-3 px-6 rounded-lg self-center mt-4"
-              onPress={() => setSelectedAppointment(null)}
-            >
-              <Text className="text-white font-medium">Close Details</Text>
-            </TouchableOpacity>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="bg-gray-300 py-3 px-6 rounded-lg"
+                onPress={() => setSelectedAppointment(null)}
+              >
+                <Text className="text-gray-800 font-medium">Close</Text>
+              </TouchableOpacity>
+
+              {selectedAppointment?.status === 0 && (
+                <TouchableOpacity
+                  className="bg-red-500 py-3 px-6 rounded-lg"
+                  onPress={() => {
+                    setAppointmentToCancel(selectedAppointment);
+                    setShowCancelConfirmation(true);
+                  }}
+                >
+                  <Text className="text-white font-medium">Cancel Appointment</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Cancel Confirmation Modal */}
+      <Modal
+        visible={showCancelConfirmation}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCancelConfirmation(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white w-11/12 p-6 rounded-lg">
+            <Text className="text-lg font-bold mb-4">Cancel Appointment</Text>
+            
+            <Text className="text-gray-600 mb-2">
+              Please provide a reason for cancellation:
+            </Text>
+            
+            <TextInput
+              className="border border-gray-300 rounded p-3 mb-4"
+              multiline
+              numberOfLines={4}
+              placeholder="Enter cancellation reason..."
+              value={cancelNote}
+              onChangeText={setCancelNote}
+            />
+            
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                className="bg-gray-300 px-6 py-3 rounded-lg"
+                onPress={() => setShowCancelConfirmation(false)}
+              >
+                <Text className="text-gray-800">Back</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                className="bg-red-500 px-6 py-3 rounded-lg"
+                onPress={handleCancelAppointment}
+                disabled={!cancelNote.trim()}
+              >
+                <Text className="text-white">Confirm Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

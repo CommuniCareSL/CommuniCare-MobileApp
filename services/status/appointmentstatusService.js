@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../../constants/config';
+import BASE_URL from "../../constants/config";
+ // Replace with your actual backend URL
 
 export const fetchUserAppointments = async (userId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/appointment/user`, {
+    const response = await axios.get(`${BASE_URL}/appointment/user`, {
       params: { userId }
     });
     return response.data;
