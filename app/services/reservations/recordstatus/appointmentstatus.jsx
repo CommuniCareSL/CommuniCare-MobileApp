@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { getUserDetails } from "../../../../hooks/storage";
 import { fetchUserAppointments } from '../../../../services/status/appointmentstatusService';
+import { BASE_URL } from "../../../../constants/config";
 
 const AppointmentStatus = () => {
   const router = useRouter();
@@ -18,14 +19,14 @@ const AppointmentStatus = () => {
   const [appointmentToCancel, setAppointmentToCancel] = useState(null);
   const { t } = useTranslation();
 
-  const API_BASE_URL = 'http://your-backend-url:3000'; // Update with your backend URL
-
   const statusMap = {
     0: { text: 'Booked', color: 'bg-blue-100 text-blue-700' },
-    1: { text: 'Cancelled', color: 'bg-red-100 text-red-700' },
-    2: { text: 'Ongoing', color: 'bg-orange-100 text-orange-700' },
-    3: { text: 'Completed', color: 'bg-green-100 text-green-700' }
+    1: { text: 'Ongoing', color: 'bg-orange-100 text-orange-700' },
+    2: { text: 'Completed', color: 'bg-green-100 text-green-700' },
+    3: { text: 'Cancelled', color: 'bg-red-100 text-red-700' }
   };
+
+  
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -67,10 +68,9 @@ const AppointmentStatus = () => {
     }
 
     try {
-      await axios.put(
-        `${API_BASE_URL}/appointment/user/${appointmentToCancel.appointmentId}/cancel`,
-        { cancelReason: cancelNote }
-      );
+      await axios.put(`${BASE_URL}/appointment/user/${appointmentToCancel.appointmentId}/cancel`, {
+        cancelReason: cancelNote
+      });
 
       // Refresh appointments
       const data = await fetchUserAppointments(userId);
@@ -105,8 +105,8 @@ const AppointmentStatus = () => {
       <View className="border border-blue-200 rounded-lg p-4 mb-4 shadow-sm bg-white">
         <Text className="text-xl font-bold text-blue-800 mb-4">{title}</Text>
         {data.map((item, index) => (
-          <TouchableOpacity 
-            key={index} 
+          <TouchableOpacity
+            key={index}
             className="flex-row justify-between items-start py-3 border-b border-gray-200 last:border-b-0"
             onPress={() => setSelectedAppointment(item)}
           >
@@ -132,8 +132,8 @@ const AppointmentStatus = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView 
-        contentContainerStyle={{ padding: 16 }} 
+      <ScrollView
+        contentContainerStyle={{ padding: 16 }}
         showsVerticalScrollIndicator={false}
       >
         <View className="border border-gray-200 rounded-lg shadow-sm p-4 bg-gray-50">
@@ -154,17 +154,17 @@ const AppointmentStatus = () => {
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white w-11/12 p-6 rounded-lg">
             <Text className="text-xl font-bold text-blue-800 mb-6">Appointment Details</Text>
-            
+
             <View className="space-y-4 mb-4">
               <DetailRow label="Service" value={selectedAppointment?.title} />
               <DetailRow label="Sabha" value={selectedAppointment?.sabha?.sabhaName} />
               <DetailRow label="Department" value={selectedAppointment?.department?.departmentName} />
               <DetailRow label="Date" value={formatDate(selectedAppointment?.date)} />
               <DetailRow label="Time Slot" value={selectedAppointment?.timeSlot} />
-              <DetailRow 
-                label="Status" 
-                value={statusMap[selectedAppointment?.status]?.text} 
-                status={statusMap[selectedAppointment?.status]?.text.toLowerCase()} 
+              <DetailRow
+                label="Status"
+                value={statusMap[selectedAppointment?.status]?.text}
+                status={statusMap[selectedAppointment?.status]?.text.toLowerCase()}
               />
               <DetailRow label="Notes" value={selectedAppointment?.note || 'No notes'} />
               <DetailRow label="Created At" value={formatDate(selectedAppointment?.createdAt)} />
@@ -204,11 +204,11 @@ const AppointmentStatus = () => {
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white w-11/12 p-6 rounded-lg">
             <Text className="text-lg font-bold mb-4">Cancel Appointment</Text>
-            
+
             <Text className="text-gray-600 mb-2">
               Please provide a reason for cancellation:
             </Text>
-            
+
             <TextInput
               className="border border-gray-300 rounded p-3 mb-4"
               multiline
@@ -217,7 +217,7 @@ const AppointmentStatus = () => {
               value={cancelNote}
               onChangeText={setCancelNote}
             />
-            
+
             <View className="flex-row justify-between">
               <TouchableOpacity
                 className="bg-gray-300 px-6 py-3 rounded-lg"
@@ -225,7 +225,7 @@ const AppointmentStatus = () => {
               >
                 <Text className="text-gray-800">Back</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 className="bg-red-500 px-6 py-3 rounded-lg"
                 onPress={handleCancelAppointment}
