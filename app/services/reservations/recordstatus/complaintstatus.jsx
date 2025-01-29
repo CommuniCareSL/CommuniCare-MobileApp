@@ -13,8 +13,6 @@ const ComplaintStatus = () => {
   const [loading, setLoading] = useState(true);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
 
-  
-
   const formatDateTime = (isoString) => {
     if (!isoString) return 'N/A';
     const [date, time] = isoString.split('T');
@@ -99,8 +97,9 @@ const ComplaintStatus = () => {
             <View className="justify-center">
               <Text className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
                 item.status === 'Pending' ? 'bg-orange-100 text-orange-700' :
-                item.status === 'Rejected' ? 'bg-red-100 text-red-700' :
-                item.status === 'Ongoing' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                item.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
+                item.status === 'Ongoing' ? 'bg-blue-100 text-blue-700' : 
+                'bg-green-100 text-green-700' // Completed status
               }`}>
                 {item.status}
               </Text>
@@ -169,9 +168,9 @@ const DetailRow = ({ label, value, status }) => {
   const getStatusStyle = () => {
     switch (status) {
       case 'pending': return 'bg-orange-100 text-orange-700';
-      case 'rejected': return 'bg-red-100 text-red-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
       case 'ongoing': return 'bg-blue-100 text-blue-700';
-      case 'resolved': return 'bg-green-100 text-green-700';
+      case 'completed': return 'bg-green-100 text-green-700';
       default: return 'bg-gray-100 text-gray-600';
     }
   };
