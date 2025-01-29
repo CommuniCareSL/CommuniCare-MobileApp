@@ -1,6 +1,5 @@
 import axios from 'axios';
 import BASE_URL from "../../constants/config";
- // Replace with your actual backend URL
 
 export const fetchUserAppointments = async (userId) => {
   try {

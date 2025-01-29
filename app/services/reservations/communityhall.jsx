@@ -181,9 +181,18 @@ const CommunityHallReservation = () => {
 
       {selectedHall && (
         <>
-          <Text style={styles.label}>Area: {selectedHall.area}</Text>
-          <Text style={styles.label}>Terms: {selectedHall.terms}</Text>
-          <Text style={styles.label}>Price: Rs. {selectedHall.pricePerDay}/day</Text>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Area:</Text>
+            <Text style={styles.highlightText}>{selectedHall.area}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Terms:</Text>
+            <Text style={styles.highlightText}>{selectedHall.terms}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Price:</Text>
+            <Text style={styles.highlightText}>Rs. {selectedHall.pricePerDay}/day</Text>
+          </View>
         </>
       )}
 
@@ -254,21 +263,18 @@ const CommunityHallReservation = () => {
   );
 };
 
-
-
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
     backgroundColor: "#FFF",
   },
-  headerTitle: {
+  title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginBottom: 20,
-    marginTop: 10,
+    color: "#000",
   },
   input: {
     borderWidth: 1,
@@ -284,11 +290,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
   },
-  label: {
+  highlightContainer: {
+    backgroundColor: "#e3f2fd",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  highlightLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 5,
-    color: '#333',
+    color: "#1976d2",
+  },
+  highlightText: {
+    fontSize: 16,
+    color: "#333",
   },
   declarationBox: {
     padding: 10,
@@ -297,10 +312,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 1,
     borderColor: "#ccc",
-  },
-  declaration: {
-    fontSize: 14,
-    color: '#333',
   },
   radioContainer: {
     flexDirection: "row",
@@ -326,10 +337,10 @@ const styles = StyleSheet.create({
   },
   radioText: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
   },
   submitButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#ffc107", // Yellow color
     padding: 15,
     alignItems: "center",
     borderRadius: 5,
@@ -338,18 +349,10 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   disabledButton: {
     backgroundColor: "#ccc",
-  },
-  totalText: {
-    marginTop: 20,
-    marginBottom: 15,
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: '#1a237e',
   },
   error: {
     color: "red",

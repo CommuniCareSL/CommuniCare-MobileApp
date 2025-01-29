@@ -46,13 +46,13 @@ const Services = () => {
   const router = useRouter();
 
   const reservationServices = [
-    { title: "Booking the crematorium (8)", description: "Crematorium Booking", onPress: () => router.push('services/reservations/crematorium') },
-    { title: "Segregation of playgrounds (10)", description: "Segregation of playgrounds",  onPress: () => router.push('services/reservations/playground') },
-    { title: "Allotment of satipola land (19)", description: "Allotment of satipola land", onPress: () => router.push('services/reservations/sathipola') },
-    { title: "Allotment of parking in front of City Hall (19)", description: "Allotment of parking in front of City Hall", onPress: () => router.push('services/reservations/parkinglot') },
-    { title: "Allotment of community hall (19)", description: "Allotment of community hall", onPress: () => router.push('services/reservations/communityhall') },
-    { title: "Avail Gali Bowsara service (19)", description: "Avail Gali Bowsara service", onPress: () => router.push('services/reservations/gully') },
-    { title: "Display of advertisements(19)", description: "Display of advertisements", onPress: () => router.push('services/reservations/billboard') },
+    { title: "Booking the crematorium ", description: "Crematorium Booking", onPress: () => router.push('services/reservations/crematorium') },
+    { title: "Segregation of playgrounds ", description: "Segregation of playgrounds",  onPress: () => router.push('services/reservations/playground') },
+    { title: "Allotment of community hall ", description: "Allotment of community hall", onPress: () => router.push('services/reservations/communityhall') },
+    { title: "Avail Gali Bowsara service ", description: "Avail Gali Bowsara service", onPress: () => router.push('services/reservations/gully') },
+    { title: "Display of advertisements", description: "Display of advertisements", onPress: () => router.push('services/reservations/billboard') },
+    { title: "Allotment of satipola land ", description: "Allotment of satipola land", onPress: () => router.push('services/reservations/sathipola') },
+    { title: "Allotment of parking in front of City Hall ", description: "Allotment of parking in front of City Hall", onPress: () => router.push('services/reservations/parkinglot') },
   ];
 
   // const rentalServices = [

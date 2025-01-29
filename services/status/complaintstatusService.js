@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BASE_URL } from '../../constants/config';
+import  BASE_URL  from '../../constants/config';
 
 
 
