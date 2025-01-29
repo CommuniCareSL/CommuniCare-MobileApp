@@ -252,11 +252,18 @@ const PlaygroundReservation = () => {
       {/* Display Area and Terms */}
       {selectedGround && (
         <>
-          <Text style={styles.label}>Area: {selectedGround.area}</Text>
-          <Text style={styles.label}>Terms: {selectedGround.terms}</Text>
-          <Text style={styles.label}>
-            Price Per Day: Rs. {selectedGround.pricePerDay}
-          </Text>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Area:</Text>
+            <Text style={styles.highlightText}>{selectedGround.area}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Terms:</Text>
+            <Text style={styles.highlightText}>{selectedGround.terms}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Price Per Day:</Text>
+            <Text style={styles.highlightText}>Rs. {selectedGround.pricePerDay}</Text>
+          </View>
         </>
       )}
 
@@ -301,16 +308,16 @@ const PlaygroundReservation = () => {
 
       {/* Display Selected Dates */}
       {values.agree && selectedDates.length > 0 && (
-        <View style={styles.selectedDatesContainer}>
-          <Text style={styles.label}>Selected Dates:</Text>
+        <View style={styles.highlightContainer}>
+          <Text style={styles.highlightLabel}>Selected Dates:</Text>
           <FlatList
             data={selectedDates}
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
-              <Text style={styles.selectedDate}>{item}</Text>
+              <Text style={styles.highlightText}>{item}</Text>
             )}
           />
-          <Text style={styles.label}>Total Payment: Rs. {totalPayment}</Text>
+          <Text style={styles.highlightLabel}>Total Payment: Rs. {totalPayment}</Text>
         </View>
       )}
 
@@ -455,6 +462,21 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginBottom: 5,
+  },
+  highlightContainer: {
+    backgroundColor: "#e3f2fd",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  highlightLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1976d2",
+  },
+  highlightText: {
+    fontSize: 14,
+    color: "#555",
   },
 });
 

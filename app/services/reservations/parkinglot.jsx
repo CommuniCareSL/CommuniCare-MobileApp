@@ -1,248 +1,418 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   TextInput,
-  ScrollView,
-} from 'react-native';
-import { Formik } from 'formik';
-import * as Yup from 'yup';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import * as SecureStore from 'expo-secure-store';
-import { submitReservation } from '../../../services/reservationService'; // Adjust the path as per your folder structure
+  FlatList,
+  Alert,
+} from "react-native";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+import * as SecureStore from "expo-secure-store";
+import { fetchGroundsBySabhaId } from "../../../services/reservations/groundService";
+import { fetchBookedDatesByGroundId } from "../../../services/reservations/groundService";
+import RNPickerSelect from "react-native-picker-select";
+import PaymentGateway from "../../../components/payment/PaymentGateway";
+import { useNavigation } from "@react-navigation/native";
+import { submitReservation } from "../../../services/reservations/groundService";
+import { useRouter } from "expo-router";
+
+// Configure locale for the calendar
+LocaleConfig.locales["en"] = {
+  monthNames: [
+    "January","February","March","April","May","June","July","August","September","October","November","December",],
+  monthNamesShort: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",],
+  dayNames: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday",],
+  dayNamesShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+};
+LocaleConfig.defaultLocale = "en";
 
 // Validation schema for the form
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  address: Yup.string().required('Address is required'),
-  idNumber: Yup.string().required('ID number is required'),
-  telephone: Yup.string().required('Telephone number is required'),
-  event: Yup.string().required('Event description is required'),
-  date: Yup.string().required('Date is required'),
-  agree: Yup.boolean().oneOf([true], 'You must agree to the terms and conditions'),
+  event: Yup.string().required("Event is required"),
+  description: Yup.string().required("Description is required"),
+  groundId: Yup.string().required("Ground selection is required"),
+  agree: Yup.boolean().oneOf(
+    [true],
+    "You must agree to the terms and conditions"
+  ),
 });
 
-const ParkinglotReservation = () => {
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+const PlaygroundReservation = () => {
+  const [selectedDates, setSelectedDates] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [sabhaId, setSabhaId] = useState(null);
+  const [grounds, setGrounds] = useState([]);
+  const [selectedGround, setSelectedGround] = useState(null);
+  const [bookedDates, setBookedDates] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [totalPayment, setTotalPayment] = useState(0);
+  const [markedDates, setMarkedDates] = useState({});
+  const [isPaymentModalVisible, setPaymentModalVisible] = useState(false);
+  const formikRef = useRef();
+  const navigation = useNavigation();
+  const router = useRouter();
 
-  // Fetch user ID from secure storage
+  // Fetch user details
   useEffect(() => {
-    const fetchUserId = async () => {
+    const fetchUserDetails = async () => {
       try {
-        const storedUserDetails = await SecureStore.getItemAsync('userDetails');
+        const storedUserDetails = await SecureStore.getItemAsync("userDetails");
         if (storedUserDetails) {
-          const { userId } = JSON.parse(storedUserDetails);
+          const { userId, sabhaId } = JSON.parse(storedUserDetails);
           setUserId(userId);
+          setSabhaId(sabhaId);
+
+          const groundsData = await fetchGroundsBySabhaId(sabhaId);
+          setGrounds(groundsData);
         }
       } catch (error) {
-        console.error('Failed to fetch user ID:', error);
+        console.error("Failed to fetch user details:", error);
       }
     };
-    fetchUserId();
+
+    fetchUserDetails();
   }, []);
 
-  const handleDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || selectedDate;
-    setShowDatePicker(false);
-    setSelectedDate(currentDate);
+  // Fetch booked dates
+  useEffect(() => {
+    if (selectedGround) {
+      const fetchBookedDates = async () => {
+        try {
+          const bookedDatesData = await fetchBookedDatesByGroundId(
+            selectedGround.groundId
+          );
+          setBookedDates(bookedDatesData);
+        } catch (error) {
+          console.error("Failed to fetch booked dates:", error);
+        }
+      };
+
+      fetchBookedDates();
+    }
+  }, [selectedGround]);
+
+  // Generate available dates
+  useEffect(() => {
+    const today = new Date();
+    const availableDatesArray = [];
+    for (let i = 7; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      availableDatesArray.push(date.toISOString().split("T")[0]);
+    }
+    setAvailableDates(availableDatesArray);
+  }, []);
+
+  // Update marked dates
+  useEffect(() => {
+    const today = new Date();
+    const next6Days = new Date(today);
+    next6Days.setDate(today.getDate() + 6);
+
+    const marked = {};
+
+    for (let i = 0; i <= 6; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const dateString = date.toISOString().split("T")[0];
+      marked[dateString] = {
+        disabled: true,
+        disableTouchEvent: true,
+        color: "gray",
+      };
+    }
+
+    bookedDates.forEach((date) => {
+      marked[date] = { disabled: true, disableTouchEvent: true, color: "gray" };
+    });
+
+    availableDates.forEach((date) => {
+      if (!marked[date]) {
+        marked[date] = { disabled: false, color: "green" };
+      }
+    });
+
+    setMarkedDates(marked);
+  }, [bookedDates, availableDates]);
+
+  // Handle date selection
+  const handleDateSelection = (date) => {
+    const dateString = date.dateString;
+    if (selectedDates.includes(dateString)) {
+      setSelectedDates(selectedDates.filter((d) => d !== dateString));
+    } else {
+      setSelectedDates([...selectedDates, dateString]);
+    }
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Parkinglot Reservation</Text>
+  // Calculate total payment
+  useEffect(() => {
+    if (selectedGround && selectedDates.length > 0) {
+      const total = selectedDates.length * selectedGround.pricePerDay;
+      setTotalPayment(total);
+    } else {
+      setTotalPayment(0);
+    }
+  }, [selectedDates, selectedGround]);
 
-        <Formik
-          initialValues={{
-            name: '',
-            address: '',
-            idNumber: '',
-            telephone: '',
-            event: '',
-            date: '',
-            agree: false,
+  // Handle payment success
+  const handlePaymentSuccess = async () => {
+    try {
+      if (formikRef.current) {
+        await formikRef.current.submitForm();
+      }
+    } catch (error) {
+      console.error("Failed to submit form:", error);
+    }
+  };
+
+  const handleFormSubmit = async (values, { resetForm }) => {
+    const payload = {
+      ...values,
+      userId,
+      sabhaId,
+      reservationId: 1,
+      dates: selectedDates,
+      totalPayment,
+    };
+
+    try {
+      await submitReservation(payload);
+      Alert.alert("Success", "Reservation submitted successfully");
+      resetForm();
+      setSelectedDates([]);
+      setTotalPayment(0);
+      router.replace('/services');
+    } catch (error) {
+      console.error("Reservation submission failed:", error);
+      Alert.alert("Error", "Failed to submit reservation");
+    }
+  };
+
+  // Render the form content
+  const renderFormContent = ({
+    handleChange,
+    handleBlur,
+    setFieldValue,
+    values,
+    errors,
+    touched,
+  }) => (
+    <View>
+      {/* Event Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="What is Held (Event)"
+        onChangeText={handleChange("event")}
+        onBlur={handleBlur("event")}
+        value={values.event}
+      />
+      {touched.event && errors.event && (
+        <Text style={styles.error}>{errors.event}</Text>
+      )}
+
+      {/* Description Input */}
+      <TextInput
+        style={styles.input}
+        placeholder="Description"
+        onChangeText={handleChange("description")}
+        onBlur={handleBlur("description")}
+        value={values.description}
+      />
+      {touched.description && errors.description && (
+        <Text style={styles.error}>{errors.description}</Text>
+      )}
+
+      {/* Ground Selection Dropdown */}
+      <View style={styles.dropdownContainer}>
+        <RNPickerSelect
+          placeholder={{ label: "Select Parkinglot", value: null }}
+          items={grounds.map((ground) => ({
+            label: ground.name,
+            value: ground.groundId,
+          }))}
+          onValueChange={(value) => {
+            setFieldValue("groundId", value);
+            const selected = grounds.find(
+              (ground) => ground.groundId === value
+            );
+            setSelectedGround(selected);
           }}
-          validationSchema={validationSchema}
-          onSubmit={async (values, { resetForm }) => {
-            const payload = {
-              ...values,
-              userId,  // User's ID
-              reservationId: 4,  // Reservation ID for playground (static value)
-              date: selectedDate.toISOString().split('T')[0],
-            };
-
-            // Log the payload to the console
-            console.log('Data sent to backend:', payload);
-
-            try {
-              await submitReservation(payload);
-              alert('Reservation submitted successfully');
-              resetForm();
-            } catch (error) {
-              console.error('Reservation submission failed:', error);
-              alert('Failed to submit reservation');
-            }
-          }}
-        >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            setFieldValue,
-            values,
-            errors,
-            touched,
-          }) => (
-            <View style={styles.form}>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                onChangeText={handleChange('name')}
-                onBlur={handleBlur('name')}
-                value={values.name}
-              />
-              {touched.name && errors.name && <Text style={styles.error}>{errors.name}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Address"
-                onChangeText={handleChange('address')}
-                onBlur={handleBlur('address')}
-                value={values.address}
-              />
-              {touched.address && errors.address && <Text style={styles.error}>{errors.address}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="ID Number"
-                onChangeText={handleChange('idNumber')}
-                onBlur={handleBlur('idNumber')}
-                value={values.idNumber}
-              />
-              {touched.idNumber && errors.idNumber && <Text style={styles.error}>{errors.idNumber}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="Telephone Number"
-                onChangeText={handleChange('telephone')}
-                onBlur={handleBlur('telephone')}
-                value={values.telephone}
-              />
-              {touched.telephone && errors.telephone && <Text style={styles.error}>{errors.telephone}</Text>}
-
-              <TextInput
-                style={styles.input}
-                placeholder="What is Held (Event Description)"
-                onChangeText={handleChange('event')}
-                onBlur={handleBlur('event')}
-                value={values.event}
-              />
-              {touched.event && errors.event && <Text style={styles.error}>{errors.event}</Text>}
-
-              <TouchableOpacity
-                style={styles.datePickerButton}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Text style={styles.datePickerText}>
-                  {selectedDate ? selectedDate.toLocaleDateString() : 'Select Date'}
-                </Text>
-              </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={selectedDate}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    handleDateChange(event, selectedDate);
-                    setFieldValue('date', selectedDate.toISOString().split('T')[0]);
-                  }}
-                />
-              )}
-              {touched.date && errors.date && <Text style={styles.error}>{errors.date}</Text>}
-
-              {/* Declaration in a box */}
-              <View style={styles.declarationBox}>
-                <Text style={styles.declaration}>
-                  By reserving this parkinglot, I agree to the terms and conditions:
-                  {'\n'}- No damage to property.{'\n'}- Follow all rules and regulations.
-                </Text>
-              </View>
-
-              {/* Agreement Checkbox */}
-              <TouchableOpacity
-                style={styles.radioContainer}
-                onPress={() => setFieldValue('agree', !values.agree)}
-              >
-                <View style={styles.radioButton}>
-                  {values.agree && <View style={styles.radioButtonInner} />}
-                </View>
-                <Text style={styles.radioText}>I Agree</Text>
-              </TouchableOpacity>
-              {touched.agree && errors.agree && <Text style={styles.error}>{errors.agree}</Text>}
-
-              {/* Submit Button */}
-              <TouchableOpacity
-                style={[styles.submitButton, !values.agree && { backgroundColor: '#ccc' }]}
-                onPress={handleSubmit}
-                disabled={!values.agree}
-              >
-                <Text style={styles.buttonText}>Submit</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </Formik>
+          value={values.groundId}
+        />
       </View>
-    </ScrollView>
+      {touched.groundId && errors.groundId && (
+        <Text style={styles.error}>{errors.groundId}</Text>
+      )}
+
+      {/* Display Area and Terms */}
+      {selectedGround && (
+        <>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Area:</Text>
+            <Text style={styles.highlightText}>{selectedGround.area}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Terms:</Text>
+            <Text style={styles.highlightText}>{selectedGround.terms}</Text>
+          </View>
+          <View style={styles.highlightContainer}>
+            <Text style={styles.highlightLabel}>Price Per Day:</Text>
+            <Text style={styles.highlightText}>Rs. {selectedGround.pricePerDay}</Text>
+          </View>
+        </>
+      )}
+
+      {/* Calendar for Date Selection */}
+      <Calendar
+        markedDates={{
+          ...markedDates,
+          ...selectedDates.reduce((acc, date) => {
+            acc[date] = { selected: true, selectedColor: "blue" };
+            return acc;
+          }, {}),
+        }}
+        onDayPress={(day) => {
+          if (!markedDates[day.dateString]?.disabled) {
+            handleDateSelection(day);
+          }
+        }}
+        minDate={new Date().toISOString().split("T")[0]}
+      />
+
+      {/* Declaration Box */}
+      <View style={styles.declarationBox}>
+        <Text style={styles.declaration}>
+          By reserving this parkinglot, I agree to the terms and conditions:
+          {"\n"}- No damage to property.{"\n"}- Follow all rules and regulations.
+        </Text>
+      </View>
+
+      {/* Agreement Checkbox */}
+      <TouchableOpacity
+        style={styles.radioContainer}
+        onPress={() => setFieldValue("agree", !values.agree)}
+      >
+        <View style={styles.radioButton}>
+          {values.agree && <View style={styles.radioButtonInner} />}
+        </View>
+        <Text style={styles.radioText}>I Agree</Text>
+      </TouchableOpacity>
+      {touched.agree && errors.agree && (
+        <Text style={styles.error}>{errors.agree}</Text>
+      )}
+
+      {/* Display Selected Dates */}
+      {values.agree && selectedDates.length > 0 && (
+        <View style={styles.highlightContainer}>
+          <Text style={styles.highlightLabel}>Selected Dates:</Text>
+          <FlatList
+            data={selectedDates}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <Text style={styles.highlightText}>{item}</Text>
+            )}
+          />
+          <Text style={styles.highlightLabel}>Total Payment: Rs. {totalPayment}</Text>
+        </View>
+      )}
+
+      {/* Submit Button */}
+      <TouchableOpacity
+        style={[
+          styles.submitButton,
+          !values.agree && { backgroundColor: "#ccc" },
+        ]}
+        onPress={() => setPaymentModalVisible(true)}
+        disabled={!values.agree}
+      >
+        <Text style={styles.buttonText}>Submit</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <FlatList
+      contentContainerStyle={styles.container}
+      ListHeaderComponent={
+        <Text style={styles.title}>Parking lot Reservation</Text>
+      }
+      ListFooterComponent={
+        <>
+          <Formik
+            innerRef={formikRef}
+            initialValues={{
+              event: "",
+              description: "",
+              groundId: "",
+              agree: false,
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleFormSubmit}
+          >
+            {renderFormContent}
+          </Formik>
+
+          {/* Payment Gateway Modal */}
+          <PaymentGateway
+            visible={isPaymentModalVisible}
+            onClose={() => setPaymentModalVisible(false)}
+            onPaymentSuccess={handlePaymentSuccess}
+            totalPayment={totalPayment}
+          />
+        </>
+      }
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-  },
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flexGrow: 1,
+    backgroundColor: "#fff",
     padding: 20,
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
-  },
-  form: {
-    padding: 10,
+    textAlign: "center",
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#F0F8FF',
+    borderColor: "#ccc",
+    backgroundColor: "#F0F8FF",
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
   },
-  datePickerButton: {
-    padding: 10,
+  dropdownContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     marginBottom: 10,
-    justifyContent: 'center',
-    backgroundColor: '#F0F8FF',
-    alignItems: 'center',
+    backgroundColor: "#F0F8FF",
   },
-  datePickerText: {
-    fontSize: 16,
-    color: '#555',
+  label: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 10,
+  },
+  selectedDatesContainer: {
+    marginTop: 10,
+  },
+  selectedDate: {
+    fontSize: 14,
+    color: "#555",
+    marginBottom: 5,
   },
   radioContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 10,
   },
   radioButton: {
@@ -250,49 +420,64 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#28a745',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#28a745",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 10,
   },
   radioButtonInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: '#28a745',
+    backgroundColor: "#28a745",
   },
   radioText: {
     fontSize: 16,
-    color: '#555',
+    color: "#555",
   },
   declarationBox: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 5,
     padding: 15,
-    backgroundColor: '#F0F8FF',
+    backgroundColor: "#F0F8FF",
     marginVertical: 10,
   },
   declaration: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
   },
   submitButton: {
-    backgroundColor: '#ffc107',
+    backgroundColor: "#ffc107",
     padding: 15,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   error: {
-    color: 'red',
+    color: "red",
     fontSize: 12,
     marginBottom: 5,
   },
+  highlightContainer: {
+    backgroundColor: "#e3f2fd",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  highlightLabel: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#1976d2",
+  },
+  highlightText: {
+    fontSize: 14,
+    color: "#555",
+  },
 });
 
-export default ParkinglotReservation;
+export default PlaygroundReservation;

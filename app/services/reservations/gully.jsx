@@ -18,7 +18,6 @@ import * as SecureStore from 'expo-secure-store';
 import { useRouter } from 'expo-router';
 
 const validationSchema = Yup.object().shape({
-  telephone: Yup.string().required('Telephone number is required'),
   frequency: Yup.number()
     .required('Frequency is required')
     .min(1, 'Minimum 1 frequency'),
@@ -106,7 +105,7 @@ const GullyBowserReservation = () => {
         <Text style={styles.priceText}>Rs. {PRICE_PER_FREQUENCY} per frequency</Text>
 
         <Formik
-          initialValues={{ telephone: '', frequency: '', agree: false }}
+          initialValues={{ frequency: '', agree: false }}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
@@ -131,19 +130,6 @@ const GullyBowserReservation = () => {
                   />
                 </TouchableOpacity>
               </View>
-
-              <TextInput
-                style={styles.input}
-                placeholder="Telephone Number"
-                placeholderTextColor="#666"
-                onChangeText={handleChange('telephone')}
-                onBlur={handleBlur('telephone')}
-                value={values.telephone}
-                keyboardType="phone-pad"
-              />
-              {touched.telephone && errors.telephone && (
-                <Text style={styles.error}>{errors.telephone}</Text>
-              )}
 
               <TextInput
                 style={styles.input}
